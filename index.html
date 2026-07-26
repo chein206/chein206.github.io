@@ -67,7 +67,12 @@ figure img{width:100%;height:auto;display:block;border:1px solid var(--line);bor
 figcaption{font-size:12.5px;color:var(--muted);margin-top:9px;padding-left:2px}
 figcaption b{color:var(--ink);font-weight:600}
 
-.case h3{font-size:14.5px;font-weight:800;color:var(--ink);margin:28px 0 10px;letter-spacing:-.01em}
+.case h3{font-size:19.5px;font-weight:800;color:var(--ink);letter-spacing:-.028em;line-height:1.4;
+         margin:52px 0 16px;padding:0 0 0 15px;position:relative}
+.case h3::before{content:'';position:absolute;left:0;top:.22em;bottom:.22em;
+                 width:4px;background:var(--accent);border-radius:2px}
+.case h3:first-of-type{margin-top:8px}
+@media(max-width:640px){.case h3{font-size:18px;margin:40px 0 14px}}
 .case p{margin-bottom:14px;max-width:700px}
 .case p strong,.case li strong{color:var(--ink);font-weight:700}
 .case em{font-style:normal;color:var(--ink);font-weight:600}
@@ -132,7 +137,7 @@ h3[id]{scroll-margin-top:64px}
 
 /* ── mini pair ── */
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:34px}
-.pair h3{margin-top:0}
+.pair h3{margin-top:0;font-size:17px}
 @media(max-width:720px){.pair{grid-template-columns:1fr;gap:8px}}
 
 /* ── path ── */
