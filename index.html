@@ -97,6 +97,15 @@ blockquote{border-left:3px solid var(--line);padding:2px 0 2px 16px;margin:0 0 2
       padding:14px 17px;font-size:13.5px;margin:22px 0;max-width:700px}
 .note b{color:var(--ink)}
 
+
+/* ── 케이스 내 목차 ── */
+.toc{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 26px;max-width:820px}
+.toc-l{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--muted);margin-right:4px}
+.toc a{font-size:12px;font-weight:600;color:var(--ink);background:var(--soft);border:1px solid var(--line);
+       border-radius:99px;padding:5px 11px;text-decoration:none}
+.toc a:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+h3[id]{scroll-margin-top:64px}
+
 /* ── 기능 묶음 ── */
 .feat{display:grid;gap:13px;margin:8px 0 24px;max-width:820px}
 .fgroup{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
@@ -193,13 +202,25 @@ footer a{color:var(--body)}
   <div class="metric">전시장 9곳 · 계정 59개 · 주간 활성 35명(리텐션 59%) · 누적 견적 1,300건 이상
 광고비 0원 · 정기결제 실연동 및 PG 심사 통과            2026년 7월 기준</div>
 
+  <div class="toc">
+    <div class="toc-l">이 케이스에서 다루는 것</div>
+    <a href="#s-product">제품</a>
+    <a href="#s-origin">출발점</a>
+    <a href="#s-arch">기술 선택</a>
+    <a href="#s-solve">풀어야 했던 문제 5</a>
+    <a href="#s-ai">AI 적용</a>
+    <a href="#s-eval">평가 하네스</a>
+    <a href="#s-edu">다른 업종으로</a>
+    <a href="#s-fail">실패 4</a>
+  </div>
+
   <figure>
     <img src="shots/scpad-quote.png" alt="SCPAD BYD 견적기 화면">
     <figcaption><b>견적기.</b> 오른쪽 요약 패널이 입력과 동시에 갱신됩니다. 금액을 다루는 화면이라
       AI가 계산한 값을 그대로 쓰지 않고 자동 회귀 검증을 거칩니다.</figcaption>
   </figure>
 
-  <h3>무엇을 하는 제품인가</h3>
+  <h3 id="s-product">무엇을 하는 제품인가</h3>
   <p>자동차 영업의 하루는 이렇게 흘러갑니다.
      <strong>리드가 들어오고 → 상담하고 → 견적을 내고 → 계약하고 → 출고하고 → 관리합니다.</strong>
      이 구간마다 도구가 따로 있거나 아예 없었습니다. SCPAD는 그 전 구간을 하나에 넣었습니다.</p>
@@ -278,7 +299,7 @@ footer a{color:var(--body)}
     일하다 보면 남습니다.
   </div>
 
-  <h3>기 — 계산기 하나</h3>
+  <h3 id="s-origin">기 — 계산기 하나</h3>
   <p>BMW에서 영업할 때 고객이 자주 묻는 질문이 있었습니다. <em>"3년 타다가 중간에 갚으면 얼마 나와요?"</em></p>
   <p>답하려면 금융 견적서 PDF를 열어 대출금액·이자율·기간·중도상환수수료율·잔존가치를 눈으로 찾고,
      그걸로 잔여원금과 수수료를 계산해야 했습니다. 한 건에 몇 분이 걸리고 상담 중에는 그 시간을 낼 수 없습니다.
@@ -309,7 +330,7 @@ footer a{color:var(--body)}
       데모에서는 샘플 견적서로 바로 눌러볼 수 있습니다.</figcaption>
   </figure>
 
-  <h3>승 — 계산기가 CRM이 된 이유</h3>
+  <h3 id="s-arch">승 — 계산기가 CRM이 된 이유</h3>
   <p>쓰다 보니 진짜 문제는 계산이 아니었습니다. 견적을 뽑아준 고객이 누구였는지, 그때 뭘 원했는지가 남지 않았습니다.
      고객은 수첩에, 견적은 엑셀에, 상담 기록은 메모장에 흩어져 있었습니다.
      회사 CRM은 있었지만 관리자를 위한 물건이었지 영업사원을 위한 물건이 아니었습니다.</p>
@@ -339,7 +360,61 @@ footer a{color:var(--body)}
      알림 종류가 늘어도 로직은 늘지 않습니다. 도달은 PWA Web Push로 처리했습니다 —
      앱을 열지 않아도 닿아야 의미가 있기 때문입니다.</p>
 
-  <h3>AI를 어디에 어떻게 붙였나</h3>
+  <h3 id="s-solve">견적기 밖에서 풀어야 했던 문제들</h3>
+  <p>기능 목록에 한 줄로 적힌 것들도 각각 판단이 있었습니다. 그중 다섯 개를 적습니다.</p>
+
+  <p><strong>① 금융 숫자를 어떻게 믿게 만드나.</strong>
+     할부 계산이 금융사 산식과 단 1원이라도 다르면 그건 곧 고객 클레임입니다.
+     문제는 <em>"내 계산이 맞다"를 무엇에 비춰 확인하느냐</em>였습니다.
+     정답은 이미 있었습니다 — <strong>금융사가 배포하는 엑셀 견적서.</strong></p>
+  <p>그래서 검증 도구를 따로 만들었습니다. 브라우저에 엑셀 견적서를 끌어다 놓으면
+     <strong>LibreOffice로 전차종을 재계산</strong>해 케이스를 뽑고,
+     제 계산 결과와 <strong>차종별로 자동 대조해 표로 보여줍니다.</strong>
+     금융사가 조건표를 갱신하면 새 엑셀을 한 번 끌어다 놓는 것으로 전 차종을 다시 검증합니다.</p>
+  <p>실행은 배치 파일 더블클릭으로 만들었습니다. 검증은 자주 돌려야 의미가 있는데,
+     <em>터미널을 열어야 하면 결국 안 돌리게 되기 때문입니다.</em>
+     앞서 "수기 계산으로 대조했다"고 적은 절차를 이걸로 대체했습니다.</p>
+
+  <p><strong>② 차대번호에서 무엇을 알 수 있고 무엇을 알 수 없나.</strong>
+     차대번호(VIN)로 차종을 자동 판별하는 기능을 만들면서 규칙을 두 개 세웠습니다.</p>
+  <table>
+    <tr><td><strong>추측 금지</strong></td>
+        <td>표준 구조(ISO 3779)와 체크섬은 규격대로 구현하되,
+            차종 매핑은 <strong>실물 샘플로 확인한 것만</strong> 등록합니다.
+            코드마다 <em>몇 대로 확인했는지</em>를 같이 기록해 뒀습니다.</td></tr>
+    <tr><td><strong>못 하는 건 약속하지 않기</strong></td>
+        <td>색상과 옵션은 <strong>차대번호에 애초에 들어 있지 않습니다.</strong>
+            "나중에 되겠지"로 남겨두면 언젠가 잘못된 값을 보여주게 됩니다.
+            그래서 원리적으로 불가하다고 문서에 못 박고 기능에서 뺐습니다.</td></tr>
+  </table>
+  <p>해독기는 화면과 분리한 순수 함수로 두어, 샘플이 늘어날 때마다 단독으로 테스트합니다.</p>
+
+  <p><strong>③ 돈을 받는 일.</strong> 정기결제는 결제를 성공시키는 것보다
+     <strong>해지를 제대로 처리하는 게 어려웠습니다.</strong>
+     빌링키를 발급받아 첫 결제를 하고, 매일 크론이 그날 청구 대상만 골라 자동 청구합니다.
+     해지하면 남은 이용 기간을 <strong>일할로 계산해 부분 환불</strong>하고 즉시 무료 플랜으로 내립니다.
+     돈이 오가는 쪽은 "되게 만들기"보다 <em>"중간에 끊겼을 때 어떻게 되는가"</em>가 전부였습니다.</p>
+
+  <p><strong>④ 알림이 실제로 도달하게.</strong>
+     팔로업 알림과 출고 30일 · 90일 케어 알림을 매일 정해진 시각에 크론으로 보냅니다.
+     <strong>발송 시각을 하나로 고정한 건 호스팅 요금제의 크론 실행 제한 때문입니다</strong> —
+     제약을 우회하는 대신 그 안에서 되는 설계를 골랐습니다.</p>
+  <p>단체 문자는 다르게 처리했습니다. <strong>문자 발송은 각 영업사원 본인 계정으로 나가고 비용도 본인 부담</strong>입니다.
+     제가 문자 비용을 떠안으면 <em>사용자가 늘어날수록 적자가 커지는 구조</em>가 됩니다.
+     쓰는 만큼 본인이 내는 쪽이 서로 오래갑니다.</p>
+
+  <p><strong>⑤ 실패를 어디서 멈출 것인가.</strong>
+     기능이 늘어날수록 곁가지가 본체를 망가뜨리는 일이 생깁니다. 세 군데에 같은 원칙을 넣었습니다.</p>
+  <table>
+    <tr><td>가입 알림</td><td>신규 가입 시 제게 알림이 갑니다.
+        <strong>알림 전송이 실패해도 가입은 그대로 진행됩니다</strong> — 조용히 넘어갑니다.
+        제 알림 때문에 사용자가 가입을 못 하면 안 됩니다</td></tr>
+    <tr><td>AI 호출</td><td>상위 모델이 실패하면 아래 모델로 1회 폴백. 완벽한 인식보다 동작하는 인식</td></tr>
+    <tr><td>데모 초기화</td><td>초기화 대상을 <strong>데모 계정으로 하드코딩</strong>해 두었습니다.
+        인증 없이 호출돼도 실제 사용자 데이터에는 닿지 않습니다</td></tr>
+  </table>
+
+  <h3 id="s-ai">AI를 어디에 어떻게 붙였나</h3>
   <p>AI는 기능 하나가 아니라 여러 자리에 들어가 있습니다. 자리마다 요구가 달라서 같은 방식으로 붙이지 않았습니다.</p>
   <table>
     <tr><th>작업</th><th>모델</th><th>설정과 이유</th></tr>
@@ -373,7 +448,7 @@ footer a{color:var(--body)}
     편의를 위해 문을 하나 열면, 그 문으로 뭐가 들어올 수 있는지 같이 봐야 합니다.
   </div>
 
-  <h3>감이 아니라 숫자로 — 평가 하네스</h3>
+  <h3 id="s-eval">감이 아니라 숫자로 — 평가 하네스</h3>
   <p><em>"Sonnet도 이 정도는 읽지 않나?"</em> 이 질문에 감으로 답하고 싶지 않아서 평가 도구를 따로 만들었습니다.</p>
 
   <p><strong>손글씨 인식 하네스.</strong> 같은 사진을 <strong>모델별 × 반복 실행</strong>해
@@ -398,7 +473,7 @@ footer a{color:var(--body)}
     모델 선택을 감으로 하지 않으려고 만든 도구입니다.
   </div>
 
-  <h3>같은 뼈대를 다른 업종으로 — SCPAD EDU</h3>
+  <h3 id="s-edu">같은 뼈대를 다른 업종으로 — SCPAD EDU</h3>
   <p>브랜드 분기를 만들고 나니 질문이 하나 남았습니다.
      <em>브랜드가 아니라 업종이 바뀌면 어떻게 되는가.</em></p>
   <p><strong>학습지 방문판매 CRM(SCPAD EDU)</strong>을 같은 뼈대로 만들어 확인했습니다.
@@ -471,7 +546,7 @@ footer a{color:var(--body)}
     EDU는 베타 사용자의 실제 상담 데이터가 들어 있어 공개 데모를 열지 않았습니다.
     로그인 화면까지만 보입니다.</p>
 
-  <h3>전 — 틀린 것들</h3>
+  <h3 id="s-fail">전 — 틀린 것들</h3>
   <p>만든 것보다 틀린 것에서 더 많이 배웠습니다.</p>
 
   <p><strong>① 비싼 모델로 전부 돌리고 있었습니다.</strong>
