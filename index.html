@@ -97,6 +97,23 @@ blockquote{border-left:3px solid var(--line);padding:2px 0 2px 16px;margin:0 0 2
       padding:14px 17px;font-size:13.5px;margin:22px 0;max-width:700px}
 .note b{color:var(--ink)}
 
+/* ── 기능 묶음 ── */
+.feat{display:grid;gap:13px;margin:8px 0 24px;max-width:820px}
+.fgroup{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.fh{background:var(--soft);padding:11px 17px;border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.fh .num{font-size:10.5px;font-weight:800;color:var(--accent);letter-spacing:.1em}
+.fh .nm{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.fh .dsc{font-size:12.5px;color:var(--muted)}
+.fitem{display:grid;grid-template-columns:132px 1fr;gap:16px;padding:11px 17px;
+       border-bottom:1px solid var(--line);font-size:13.5px;line-height:1.65}
+.fitem:last-child{border-bottom:none}
+.fitem .k{font-weight:700;color:var(--ink);line-height:1.5}
+.fitem .v strong{color:var(--ink);font-weight:700}
+.fitem .v em{font-style:normal;color:var(--accent);font-weight:700}
+@media(max-width:640px){.fitem{grid-template-columns:1fr;gap:2px}
+  .fh .dsc{width:100%}}
+
 /* ── mini pair ── */
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:34px}
 .pair h3{margin-top:0}
@@ -187,34 +204,65 @@ footer a{color:var(--body)}
      <strong>리드가 들어오고 → 상담하고 → 견적을 내고 → 계약하고 → 출고하고 → 관리합니다.</strong>
      이 구간마다 도구가 따로 있거나 아예 없었습니다. SCPAD는 그 전 구간을 하나에 넣었습니다.</p>
 
-  <table>
-    <tr><th>구간</th><th>하는 일</th></tr>
-    <tr><td><strong>견적</strong></td>
-        <td>차종을 고르면 차량가 · 탁송료 · 기타등록비 · 취득세 · 공채가 자동으로 잡히고,
-            할인 · 선납금 · 할부기간 · 금리를 바꾸면 총액이 즉시 다시 계산됩니다.
-            부대비용을 현금으로 낼지 대출에 태울지도 항목별로 고릅니다.
-            선납금은 <em>대출금액 기준 역산</em>도 됩니다 — 실제 상담에서는 "얼마 대출받고 싶다"로 말하기 때문입니다.</td></tr>
-    <tr><td><strong>전기차 보조금</strong></td>
-        <td>시/도와 시/군을 고르면 국고 · 지자체 보조금이 자동으로 들어옵니다.
-            전환지원금(폐차) · 청년 생애최초 · 다자녀(2·3·4자녀) · 택시 보조금까지 조건별로 얹힙니다.
-            <strong>영업사원이 가장 자주 틀리는 부분입니다</strong> — 지역마다 다르고 해마다 바뀝니다.</td></tr>
-    <tr><td><strong>견적서 전달</strong></td>
-        <td>인쇄 · PDF 저장 · <strong>이미지 복사.</strong>
-            이미지 복사를 넣은 이유는 단순합니다 — 실제로는 카톡으로 보내기 때문입니다.</td></tr>
-    <tr><td><strong>고객 파이프라인</strong></td>
-        <td>신규 · 진행중 · 계약 · 출고완료 · 장기관리 · 이탈 · 해약 8단계.
-            계약까지 못 간 고객을 지우지 않고 남겨두는 게 핵심입니다. 재구매는 거기서 나옵니다.</td></tr>
-    <tr><td><strong>만기 관리</strong></td>
-        <td>보험 · 금융 만기일을 등록하면 시점이 오기 전에 알려줍니다.</td></tr>
-    <tr><td><strong>AI 상담 메시지</strong></td>
-        <td>목적 4종 × 톤 3종으로 프롬프트를 분기합니다. 첫인사와 출고 축하와 만기 안내는
-            같은 말투로 쓰면 안 되기 때문입니다.</td></tr>
-    <tr><td><strong>명함 · 손글씨</strong></td>
-        <td>사진 한 장으로 고객 정보를 구조화합니다. 인식이 불확실한 항목은 화면에 표시해 사람이 확인합니다.</td></tr>
-    <tr><td><strong>중도상환 계산</strong></td>
-        <td>금융 견적서 PDF를 파싱해 시점별 상환액을 시뮬레이션합니다.
-            견적 2건 비교와 리스 전환(OL→FL) 계산도 같이 있습니다.</td></tr>
-  </table>
+  <div class="feat">
+
+    <div class="fgroup">
+      <div class="fh"><span class="num">01</span><span class="nm">견적</span>
+        <span class="dsc">상담 중에 금액을 만드는 일</span></div>
+      <div class="fitem"><div class="k">실시간 계산</div>
+        <div class="v">차종을 고르면 차량가 · 탁송료 · 기타등록비 · 취득세 · 공채가 자동으로 잡히고,
+          값을 바꾸면 총액이 즉시 다시 계산됩니다. 부대비용은 항목마다
+          현금으로 낼지 대출에 태울지 따로 고릅니다.</div></div>
+      <div class="fitem"><div class="k">할부 조건</div>
+        <div class="v">금융상품 · 금융사 · 선납금 · 할부기간 · 금리 · SC · 이손금.
+          선납금은 <em>대출금액 기준 역산</em>도 됩니다 —
+          실제 상담에서는 "얼마 대출받고 싶다"로 말하기 때문입니다.</div></div>
+      <div class="fitem"><div class="k">전기차 보조금</div>
+        <div class="v">시/도와 시/군을 고르면 국고 · 지자체 보조금이 자동으로 들어옵니다.
+          전환지원금(폐차) · 청년 생애최초 · 다자녀(2·3·4자녀) · 택시 보조금이 조건별로 얹힙니다.
+          <strong>영업사원이 가장 자주 틀리는 부분입니다</strong> — 지역마다 다르고 해마다 바뀝니다.</div></div>
+      <div class="fitem"><div class="k">견적서 전달</div>
+        <div class="v">인쇄 · PDF 저장 · <em>이미지 복사.</em>
+          이미지 복사를 넣은 이유는 단순합니다 — 실제로는 카톡으로 보내기 때문입니다.</div></div>
+      <div class="fitem"><div class="k">저장 견적</div>
+        <div class="v">뽑은 견적을 목록으로 보관하고 기간별로 조회합니다.
+          같은 고객에게 조건만 바꿔 다시 낼 때 처음부터 입력하지 않습니다.</div></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="fh"><span class="num">02</span><span class="nm">고객 관리</span>
+        <span class="dsc">상담 전후로 사람을 붙잡는 일</span></div>
+      <div class="fitem"><div class="k">파이프라인</div>
+        <div class="v">신규 · 진행중 · 계약 · 출고완료 · 장기관리 · 이탈 · 해약 <strong>8단계.</strong>
+          계약까지 못 간 고객을 지우지 않고 남겨두는 게 핵심입니다. 재구매는 거기서 나옵니다.</div></div>
+      <div class="fitem"><div class="k">상담 기록</div>
+        <div class="v">고객마다 상담 이력이 쌓이고, 다음 연락 시점을 걸어둘 수 있습니다.
+          출고 의지를 단계로 표시해 우선순위를 봅니다.</div></div>
+      <div class="fitem"><div class="k">AI 상담 메시지</div>
+        <div class="v">목적 4종 × 톤 3종으로 프롬프트를 분기합니다.
+          첫인사와 출고 축하와 만기 안내를 같은 말투로 쓸 수는 없기 때문입니다.</div></div>
+      <div class="fitem"><div class="k">명함 · 손글씨 인식</div>
+        <div class="v">사진 한 장으로 고객 정보를 구조화합니다.
+          <strong>인식이 불확실한 항목은 화면에 표시해 사람이 확인합니다</strong> —
+          틀린 채로 저장되는 것보다 낫습니다.</div></div>
+      <div class="fitem"><div class="k">만기 관리</div>
+        <div class="v">보험 · 금융 만기일을 등록하면 시점이 오기 전에 알려줍니다.
+          영업에서 가장 아까운 손실이 이걸 놓치는 것입니다.</div></div>
+    </div>
+
+    <div class="fgroup">
+      <div class="fh"><span class="num">03</span><span class="nm">금융 계산</span>
+        <span class="dsc">계약한 뒤에 다시 오는 질문</span></div>
+      <div class="fitem"><div class="k">중도상환 계산</div>
+        <div class="v">금융 견적서 PDF를 넣으면 12개 항목을 파싱해
+          <strong>6개월 간격 전 구간</strong>의 상환액과 절약분을 시뮬레이션합니다.</div></div>
+      <div class="fitem"><div class="k">견적 비교</div>
+        <div class="v">견적 2건을 나란히 놓고 총비용 차이를 봅니다. 현금 구매와 할부도 비교합니다.</div></div>
+      <div class="fitem"><div class="k">리스 전환</div>
+        <div class="v">운용리스에서 금융리스로 넘길 때(OL→FL)의 조건을 계산합니다.</div></div>
+    </div>
+
+  </div>
 
   <div class="note">
     <b>회사 CRM이 이미 있는데 왜 이걸 쓰는가.</b>
