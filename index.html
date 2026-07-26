@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>남광희 — 쓰던 사람이 만듭니다</title>
+<meta name="description" content="자동차 영업 5년 5개월. 현장에서 겪은 불편을 도구로 만들어 왔습니다. AI 내장 CRM SCPAD 외 4건의 케이스.">
+<meta property="og:title" content="남광희 — 쓰던 사람이 만듭니다">
+<meta property="og:description" content="전시장 9곳이 쓰는 AI 내장 CRM을 혼자 만들어 운영합니다.">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#14171f; --body:#3d4351; --muted:#767d8c; --line:#e6e8ec;
+  --bg:#fff; --soft:#f7f8fa; --accent:#1c6b57; --accent-soft:#e8f2ef;
+}
+html{scroll-behavior:smooth}
+body{font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;background:var(--bg);
+     color:var(--body);line-height:1.75;-webkit-font-smoothing:antialiased;
+     word-break:keep-all;overflow-wrap:break-word}
+
+/* ── nav ── */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:940px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px}
+.nav-me{font-weight:800;color:var(--ink);font-size:14.5px;letter-spacing:-.02em}
+.nav-links{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}
+.nav-links a{font-size:12.5px;color:var(--muted);text-decoration:none;font-weight:500}
+.nav-links a:hover{color:var(--accent)}
+
+.wrap{max-width:940px;margin:0 auto;padding:0 24px}
+
+/* ── hero ── */
+header{padding:72px 0 56px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--accent);margin-bottom:16px}
+h1{font-size:clamp(28px,5vw,40px);font-weight:800;color:var(--ink);
+   letter-spacing:-.035em;line-height:1.3;margin-bottom:20px}
+.lead{font-size:16px;max-width:660px}
+.lead b{color:var(--ink);font-weight:700}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 24px}
+.stat{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:11px 15px;min-width:118px}
+.stat .n{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.2}
+.stat .l{font-size:11px;color:var(--muted);margin-top:3px}
+.asof{font-size:11.5px;color:var(--muted)}
+.cta{display:flex;gap:9px;flex-wrap:wrap;margin-top:26px}
+.btn{display:inline-block;font-size:13px;font-weight:600;text-decoration:none;
+     border-radius:9px;padding:10px 17px;transition:.15s}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{background:#175a49}
+.btn-s{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-s:hover{border-color:var(--ink)}
+
+/* ── case ── */
+.case{padding:60px 0;border-bottom:1px solid var(--line)}
+.case-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.12em;
+          color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:3px 8px;margin-bottom:14px}
+.case h2{font-size:clamp(21px,3.4vw,27px);font-weight:800;color:var(--ink);
+         letter-spacing:-.03em;line-height:1.35;margin-bottom:12px}
+.result{font-size:15.5px;color:var(--ink);font-weight:600;max-width:660px;margin-bottom:18px}
+.metric{font-size:13px;font-variant-numeric:tabular-nums;
+        background:var(--soft);border:1px solid var(--line);border-left:3px solid var(--accent);
+        border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:26px;color:var(--body);
+        white-space:pre-wrap;line-height:1.9;max-width:700px}
+
+figure{margin:0 0 28px}
+figure img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:11px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:9px;padding-left:2px}
+figcaption b{color:var(--ink);font-weight:600}
+
+.case h3{font-size:14.5px;font-weight:800;color:var(--ink);margin:28px 0 10px;letter-spacing:-.01em}
+.case p{margin-bottom:14px;max-width:700px}
+.case p strong,.case li strong{color:var(--ink);font-weight:700}
+.case em{font-style:normal;color:var(--ink);font-weight:600}
+
+table{border-collapse:collapse;width:100%;max-width:700px;margin:6px 0 22px;font-size:13.5px}
+th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700;color:var(--ink);font-size:12px;background:var(--soft)}
+td:first-child{color:var(--muted);white-space:nowrap}
+
+pre{background:#14171f;color:#dfe4ec;border-radius:10px;padding:15px 17px;
+    overflow-x:auto;font-size:12.5px;line-height:1.7;margin:6px 0 22px;
+    font-family:ui-monospace,'Cascadia Mono',Consolas,monospace}
+pre .c{color:#8a94a6}
+code{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:.9em;
+     background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+pre code{background:none;border:none;padding:0}
+
+blockquote{border-left:3px solid var(--line);padding:2px 0 2px 16px;margin:0 0 20px;
+           color:var(--ink);font-weight:600;max-width:660px}
+
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+.links a{font-size:12.5px;font-weight:600;color:var(--ink);background:#fff;
+         border:1px solid var(--line);border-radius:8px;padding:8px 13px;text-decoration:none}
+.links a:hover{border-color:var(--accent);color:var(--accent)}
+
+.note{background:var(--soft);border:1px solid var(--line);border-radius:10px;
+      padding:14px 17px;font-size:13.5px;margin:22px 0;max-width:700px}
+.note b{color:var(--ink)}
+
+/* ── mini pair ── */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:34px}
+.pair h3{margin-top:0}
+@media(max-width:720px){.pair{grid-template-columns:1fr;gap:8px}}
+
+/* ── path ── */
+.path{padding:56px 0;border-bottom:1px solid var(--line)}
+.path h2{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:8px;letter-spacing:-.02em}
+.pl{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:14px}
+.pl:last-child{border:none}
+.pl .yr{font-size:12px;color:var(--muted);min-width:104px;font-weight:600;padding-top:2px}
+.pl .ct b{color:var(--ink);font-weight:700}
+.pl .ct div{font-size:12.5px;color:var(--muted);margin-top:1px}
+
+footer{padding:46px 0 64px;font-size:13px;color:var(--muted)}
+footer a{color:var(--body)}
+.closing{font-size:15px;color:var(--ink);font-weight:600;max-width:600px;margin-bottom:22px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <span class="nav-me">남광희</span>
+    <div class="nav-links">
+      <a href="#scpad">SCPAD</a>
+      <a href="#wheel">휠 비주얼라이저</a>
+      <a href="#board">마커보드</a>
+      <a href="#tools">소품</a>
+      <a href="#path">이력</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PRODUCT / AI ENGINEER</div>
+  <h1>쓰던 사람이 만듭니다</h1>
+  <p class="lead">
+    자동차 영업을 5년 5개월 했습니다. 현장에서 불편했던 것을 도구로 만들다가
+    <b>전시장 9곳이 쓰는 AI 내장 CRM</b>이 됐고, 지금은 기획부터 개발·결제 연동·배포·장애 대응까지 혼자 합니다.
+    아래는 그 과정에서 만든 다섯 가지입니다.
+  </p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">9곳</div><div class="l">사용 전시장</div></div>
+    <div class="stat"><div class="n">59</div><div class="l">계정</div></div>
+    <div class="stat"><div class="n">59%</div><div class="l">주간 리텐션</div></div>
+    <div class="stat"><div class="n">1,136</div><div class="l">누적 견적</div></div>
+    <div class="stat"><div class="n">0원</div><div class="l">누적 광고비</div></div>
+  </div>
+  <div class="asof">SCPAD 운영 지표 · 2026년 7월 초 기준</div>
+
+  <div class="cta">
+    <a class="btn btn-p" href="https://app.scpadlab.com/demo">로그인 없이 데모 열기</a>
+    <a class="btn btn-s" href="https://github.com/chein206">GitHub</a>
+    <a class="btn btn-s" href="https://chein206.github.io/design-handoff/">UI 설계 문서</a>
+    <a class="btn btn-s" href="mailto:chein206@gmail.com">chein206@gmail.com</a>
+  </div>
+</header>
+
+<!-- ══════════ SCPAD ══════════ -->
+<section class="case" id="scpad">
+  <div class="case-tag">CASE 01 · 운영 중인 유료 SaaS</div>
+  <h2>자동차 영업사원용 AI 내장 CRM — SCPAD</h2>
+  <p class="result">계산기 하나에서 시작해, 전시장 9곳이 쓰는 유료 SaaS가 됐습니다.</p>
+  <div class="metric">전시장 9곳 · 계정 59개 · 주간 활성 35명(리텐션 59%) · 누적 견적 1,136건
+광고비 0원 · 정기결제 실연동 및 PG 심사 통과            2026년 7월 초 기준</div>
+
+  <figure>
+    <img src="shots/scpad-quote.png" alt="SCPAD BYD 견적기 화면">
+    <figcaption><b>견적기.</b> 오른쪽 요약 패널이 입력과 동시에 갱신됩니다. 금액을 다루는 화면이라
+      AI가 계산한 값을 그대로 쓰지 않고 자동 회귀 검증을 거칩니다.</figcaption>
+  </figure>
+
+  <h3>기 — 계산기 하나</h3>
+  <p>BMW에서 영업할 때 고객이 자주 묻는 질문이 있었습니다. <em>"3년 타다가 중간에 갚으면 얼마 나와요?"</em></p>
+  <p>답하려면 금융 견적서 PDF를 열어 대출금액·이자율·기간·중도상환수수료율·잔존가치를 눈으로 찾고,
+     그걸로 잔여원금과 수수료를 계산해야 했습니다. 한 건에 몇 분이 걸리고 상담 중에는 그 시간을 낼 수 없습니다.
+     결국 "확인해서 연락드릴게요"가 되고, 그 사이 고객의 관심은 식습니다.</p>
+  <p>그래서 <strong>PDF를 넣으면 값이 바로 나오는 도구</strong>를 만들었습니다.</p>
+
+<pre><code>'early_fee_rate': [
+    r'중도상환수수료율?\s*([0-9.]+)%',
+    r'중도상환.*?([0-9.]+)%',
+    r'수수료율\s*([0-9.]+)%'
+],</code></pre>
+
+  <p>12개 항목마다 정규식을 3~6개씩 뒀습니다. 금융사와 상품에 따라 견적서 표기가 조금씩 다른데,
+     하나로 잡으면 다른 양식에서 통째로 실패하기 때문입니다. 파싱한 값으로 6개월 간격 전 구간을 시뮬레이션해
+     언제 갚는 게 유리한지를 표와 그래프로 보여줬습니다.</p>
+
+  <div class="note">
+    <b>이 도구에는 AI가 한 줄도 들어가지 않았습니다.</b> <code>pdfplumber</code>와 정규식뿐입니다.
+    2025년 9월, 아직 LLM을 쓸 줄 모를 때였습니다.<br><br>
+    먼저 적는 이유가 있습니다. 저는 AI가 생겨서 만들기 시작한 사람이 아닙니다.
+    <b>불편한 걸 도구로 바꾸는 습관이 먼저 있었고, AI는 나중에 붙은 가속기입니다.</b>
+  </div>
+
+  <h3>승 — 계산기가 CRM이 된 이유</h3>
+  <p>쓰다 보니 진짜 문제는 계산이 아니었습니다. 견적을 뽑아준 고객이 누구였는지, 그때 뭘 원했는지가 남지 않았습니다.
+     고객은 수첩에, 견적은 엑셀에, 상담 기록은 메모장에 흩어져 있었습니다.
+     회사 CRM은 있었지만 관리자를 위한 물건이었지 영업사원을 위한 물건이 아니었습니다.</p>
+  <p>저는 상담을 붙잡는 힘이 부족한 영업사원이었습니다. 지나고 나서야 아까운 고객이 생각나는 일이 반복됐습니다.
+     그래서 계산기에 고객을 붙이고, 상담 기록을 붙이고, 다음 연락 시점을 붙였습니다.</p>
+
+  <figure>
+    <img src="shots/scpad-kanban.png" alt="SCPAD BMW 칸반 고객관리 화면">
+    <figcaption><b>고객 파이프라인.</b> 왼쪽 메뉴에 <b>중도상환 계산</b>이 그대로 남아 있습니다 —
+      출발점이던 계산기가 CRM 안으로 들어온 자리입니다.</figcaption>
+  </figure>
+
+  <p>기술 선택의 기준은 <strong>"혼자서 유지할 수 있는가"</strong> 하나였습니다.</p>
+  <table>
+    <tr><th>제약</th><th>선택</th></tr>
+    <tr><td>서버를 관리할 사람이 없다</td><td>Supabase + Vercel Serverless. 상시 켜두는 서버 0대</td></tr>
+    <tr><td>고객 데이터가 섞이면 끝장이다</td><td>PostgreSQL RLS로 행 단위 격리. 앱 코드 실수로 뚫리지 않게 DB에서 차단</td></tr>
+    <tr><td>영업사원은 앱을 안 깐다</td><td>PWA. 브라우저로 쓰다가 원하면 홈 화면에 추가</td></tr>
+    <tr><td>브랜드가 늘어난다</td><td>단일 코드베이스 + 런타임 브랜드 분기. BMW/BYD를 따로 배포하지 않음</td></tr>
+  </table>
+
+  <h3>전 — 틀린 것들</h3>
+  <p>만든 것보다 틀린 것에서 더 많이 배웠습니다.</p>
+
+  <p><strong>① 비싼 모델로 전부 돌리고 있었습니다.</strong>
+     처음엔 모든 요청을 성능 좋은 모델 하나로 처리했습니다. 비용 리포트를 보고서야 단순 텍스트 정리까지
+     최상위 모델로 가고 있다는 걸 알았습니다. 요청 성격별로 나눴습니다 — 손글씨 인식처럼 어려운 건 상위 모델,
+     정형 텍스트 배치는 경량 모델. 품질 저하 없이 비용이 내려갔습니다.</p>
+
+  <p><strong>② 알림을 늘렸더니 앱을 껐습니다.</strong>
+     팔로업을 놓치는 게 영업에서 가장 아까운 손실이라 알림을 촘촘히 넣었습니다.
+     상담 후 3일·일주일·보름, 출고 30일·90일, 재구매 만기, 보험 갱신. 전부 놓치면 안 되는 것들이라고 생각했습니다.</p>
+  <p>사용자들이 앱을 껐습니다. 이유를 물으니 <em>"알림이 너무 많아 어느 게 중요한지 모르겠다"</em>고 했습니다.</p>
+  <blockquote>놓치지 말라고 넣은 알림이, 오히려 전부를 놓치게 만들고 있었습니다.</blockquote>
+  <p>늘리는 대신 줄였습니다. "놓치면 아까운 것만" 남기는 기준을 세우고 나머지는 화면 안에서 조용히 보여주는 쪽으로
+     바꿨습니다. <strong>기능을 뺀 뒤에 사용률이 올라갔습니다.</strong></p>
+
+  <p><strong>③ 금융 숫자는 틀리면 클레임입니다.</strong>
+     견적 엔진은 돈을 다룹니다. 숫자 하나가 틀리면 곧바로 고객 클레임이 됩니다.
+     AI가 준 값을 그대로 쓰지 않고 수기 계산으로 대조하는 검증 절차를 뒀고, 지금은 그 과정을 자동 회귀 검증으로 옮겼습니다.</p>
+
+  <p><strong>④ 만드는 것보다 쓰게 하는 게 어려웠습니다.</strong>
+     제가 직접 시연하면 썼습니다. "한번 써보세요"만 하면 안 썼습니다. 제품력이 아니라 전달의 문제였습니다.
+     그래서 확산 경로가 이렇게 됐습니다 — <strong>제 개인용 → 같은 팀원 → 지점 → 타 지점.</strong>
+     광고비를 한 푼도 쓰지 않았습니다.</p>
+
+  <h3>결 — 지금, 그리고 한계</h3>
+  <p>전시장 9곳, 계정 59개, 주간 활성 35명. 누적 견적 1,136건이 실제로 이 도구를 거쳐 나갔습니다.
+     정기결제(PortOne V2)를 실연동하고 PG 심사를 통과했습니다. <strong>돈을 받을 수 있는 상태까지 만들었다는 뜻입니다.</strong></p>
+  <p><strong>한계도 분명합니다.</strong> 전부 혼자 만들었으니 코드 리뷰를 받아본 적이 없습니다.
+     제 판단이 틀렸을 때 잡아줄 사람이 없었고, 실제로 위의 네 가지는 전부 사용자가 이탈하거나 비용이 튀고 나서야 알았습니다.
+     더 빨리 알 수 있는 방법이 있었을 것입니다.</p>
+
+  <div class="metric">Supabase(PostgreSQL · RLS · Auth · Edge Functions) · Vercel Serverless 13개
+PWA / TWA · PortOne V2 · Anthropic Claude(모델 라우팅) · pdfplumber</div>
+
+  <div class="links">
+    <a href="https://app.scpadlab.com/demo">▶ 로그인 없이 데모</a>
+    <a href="https://github.com/chein206/scpad">코드 미러</a>
+    <a href="https://chein206.github.io/design-handoff/">UI 설계 문서</a>
+    <a href="https://huggingface.co/spaces/Girihara/Car_loan_analyzer">중도상환 계산기 (원형)</a>
+  </div>
+</section>
+
+<!-- ══════════ WHEEL ══════════ -->
+<section class="case" id="wheel">
+  <div class="case-tag">CASE 02 · 외주 납품 · 운영 중</div>
+  <h2>휠 장착 시뮬레이터 — 휠타이어샵</h2>
+  <p class="result">휠·타이어 매장을 위한 장착 시뮬레이터. 의뢰받아 만들고 납품해 운영 중입니다.</p>
+  <div class="metric">차종 27종 · 브랜드 13개 · 차량 색상 11종 · 휠 제품샷 36장
+전 조합 사전 생성 · 응답 지연 0 · 조합당 추가 과금 0</div>
+
+  <figure>
+    <img src="shots/wheel.png" alt="휠타이어샵 장착 시뮬레이터 화면">
+    <figcaption><b>전 조합을 미리 만들어 둡니다.</b> 색상 스와치를 눌러도 대기 시간이 없고,
+      같은 조합은 몇 번을 봐도 똑같이 나옵니다.</figcaption>
+  </figure>
+
+  <h3>기 — 말로 설명되지 않는 상품</h3>
+  <p>휠은 사진만 봐서는 감이 오지 않습니다. 제품 사진은 휠 하나만 덩그러니 있고,
+     손님이 궁금한 건 <em>"내 차에 끼우면"</em>입니다. 매장에서는 이걸 말로 설명하거나,
+     다른 손님 차 사진을 보여주거나, "일단 껴보시죠"로 넘어갑니다. 상담이 길어지고 결정은 미뤄집니다.</p>
+
+  <h3>승 — 실시간 생성을 버린 이유</h3>
+  <p>첫 설계는 당연히 실시간 생성이었습니다. 고객이 조합을 고르면 그때 AI가 이미지를 만듭니다.
+     조합 수에 제한이 없고 구현도 단순합니다. 계산해 보니 셋 다 문제였습니다.</p>
+  <table>
+    <tr><th></th><th>실시간 생성</th><th>사전 생성</th></tr>
+    <tr><td>응답</td><td>수 초~수십 초 대기</td><td><strong>즉시</strong></td></tr>
+    <tr><td>비용</td><td>조합을 볼 때마다 과금</td><td>한 번 만들고 끝</td></tr>
+    <tr><td>일관성</td><td><strong>같은 조합도 매번 다르게 나옴</strong></td><td>고정</td></tr>
+  </table>
+  <p>세 번째가 결정적이었습니다. 손님이 같은 조합을 두 번 봤는데 다르게 보이면, 그건 기능이 아니라 <strong>하자</strong>입니다.
+     매장에서 상담 도구로 쓰려면 화면이 매번 같아야 합니다.</p>
+  <p>그래서 <strong>모든 조합을 미리 만들어 두는 쪽</strong>으로 뒤집었습니다.
+     대신 부담이 생성 단계로 넘어왔습니다. 수백 장의 이미지가 <strong>한 세트처럼 보여야 합니다.</strong>
+     한 장이라도 색감이나 각도가 튀면 카탈로그 전체가 아마추어처럼 보입니다.</p>
+
+  <h3>전 — 일관성을 붙잡은 네 가지</h3>
+  <p><strong>① 색상 변형은 다시 생성하지 않습니다.</strong>
+     같은 휠의 실버·블랙·그레이를 각각 생성하면 광택과 형태가 미묘하게 달라집니다.
+     기준 이미지 한 장만 생성하고 나머지는 그 한 장을 리컬러합니다. 형태가 물리적으로 동일해집니다.</p>
+  <p><strong>② 기준색을 레퍼런스로 못 박았습니다.</strong>
+     그레이가 특히 말썽이었습니다. 프롬프트로 "그레이"를 요구하면 파란기가 도는 결과가 섞여 나옵니다.
+     잘 나온 한 장을 기준으로 지정하고 나머지를 거기 맞췄습니다.</p>
+  <p><strong>③ 원본에 있는 건 지우지 않습니다.</strong>
+     휠 센터캡의 브랜드 로고가 생성 과정에서 지워지는 일이 잦았습니다.
+     로고는 제품 식별 요소라 사라지면 다른 상품이 됩니다.</p>
+  <p><strong>④ 전체를 돌리기 전에 3장을 검수합니다.</strong>
+     배치를 통째로 돌린 뒤 결과가 틀리면 시간과 비용을 전부 날립니다.
+     매번 3장짜리 파일럿을 먼저 뽑아 눈으로 확인하고, 통과해야 전체를 시작했습니다.</p>
+
+  <h3>결 — 납품 이후</h3>
+  <p>매장에서 상담 도구로 쓰고 있습니다. 사전 생성을 택했으니 <strong>운영 비용이 사실상 0원</strong>입니다.
+     손님이 몇 번을 눌러도 추가 과금이 없고 서버도 필요 없습니다.
+     대신 새 차종이나 새 휠이 들어오면 제가 배치를 다시 돌려야 합니다. 알고 고른 트레이드오프입니다.</p>
+  <p><strong>서비스 코드는 공개하지 않습니다.</strong> 클라이언트 자산입니다.
+     공개 저장소에는 생성 파이프라인과 일관성 설계 기록만 올렸습니다.</p>
+
+  <div class="links">
+    <a href="https://wts-seoul.vercel.app">▶ 서비스 열기</a>
+    <a href="https://github.com/chein206/ai-image-factory">파이프라인 기록</a>
+  </div>
+</section>
+
+<!-- ══════════ BOARD ══════════ -->
+<section class="case" id="board">
+  <div class="case-tag">CASE 03 · 아날로그 업무 → 도구</div>
+  <h2>전시장 차량 위치 보드</h2>
+  <p class="result">화이트보드와 전화 문의를 대체하기 위해 만든 웹 도구.
+     BMW에서 5년간 겪은 문제를 퇴사 후 도구로 만들어 제안했습니다.</p>
+  <div class="metric">12개 구역 · 차량 18대 · 실시간 동기화 · 로그인 없음 · 운영비 0원</div>
+
+  <figure>
+    <img src="shots/markerboard.png" alt="차량 위치 보드 화면">
+    <figcaption><b>화이트보드를 그대로 옮겼습니다.</b> 구역이 카드로 놓이고 차량을 드래그로 옮깁니다 —
+      쓰던 사람이 새로 배울 게 없어야 했습니다.</figcaption>
+  </figure>
+
+  <h3>기 — 차가 어디 있는지 아무도 모른다</h3>
+  <p>전시장 차량은 계속 움직입니다. 프라자 주차칸, 3층, 4층, 전시 공간, AS 입고, 자택 보관, 대차, 외부 보관소까지
+     흩어집니다. 관리는 화이트보드였고, 문제는 두 가지였습니다.</p>
+  <p><strong>하나. 갱신이 안 됩니다.</strong> 차를 옮긴 사람이 보드를 고쳐 쓰지 않으면 틀린 정보가 그대로 남습니다.
+     그 보드를 믿고 찾으러 갔다가 헤맵니다.</p>
+  <p><strong>둘. 밖에서는 볼 수가 없습니다.</strong> 이게 더 컸습니다. 외부에서 고객을 응대하다 차량 위치를 확인하려면
+     전시장 안에 있는 동료에게 전화를 걸어 "그 차 어디 있어?"를 물어야 했습니다.
+     묻는 사람도 답하는 사람도 하던 일을 멈춥니다. 즉 <strong>위치 정보가 건물 안에 갇혀 있었습니다.</strong></p>
+
+  <h3>승 — 왜 이 도구들이었나</h3>
+  <p>기능을 정하기 전에 제약부터 정리했습니다. 영업 현장에서 안 쓰이는 도구의 이유는 대개 기능이 아니라 진입 장벽이라고 봤습니다.</p>
+  <table>
+    <tr><th>제약</th><th>선택</th></tr>
+    <tr><td>여러 명이 동시에 본다</td><td>Firebase Realtime Database — 한 명이 옮기면 나머지 화면이 즉시 갱신</td></tr>
+    <tr><td>영업사원은 앱을 설치하지 않는다</td><td>설치 없는 웹. 링크 하나로 접속</td></tr>
+    <tr><td>로그인을 시키면 안 쓴다</td><td>무인증. 주소만 알면 바로 진입</td></tr>
+    <tr><td>예산이 없다</td><td>정적 호스팅 + 무료 티어. 서버 유지비 0원</td></tr>
+  </table>
+
+  <h3>전 — 시연에서 받은 지적</h3>
+  <p>전시장에서 시연했습니다. 영업직원들과 지점장이 함께 확인했습니다. 반응은 좋았는데 하나가 걸렸습니다.</p>
+  <blockquote>"차를 한 대씩 다 입력해야 하는 거예요?"</blockquote>
+  <p>맞는 지적이었습니다. 차종·색상·차대번호·담당자를 차 한 대마다 손으로 넣어야 했습니다. 18대면 18번입니다.
+     <strong>위치 확인 시간을 줄이려고 만든 도구가 입력 시간을 새로 만들고 있었습니다.</strong></p>
+  <p>기존 업무 흐름을 다시 봤습니다. 차량 정보는 이미 사내 딜리버리 정보 페이지에 표로 있었고, 사람들은 그 표를 매일 봅니다.
+     그러면 <strong>그 표를 그대로 가져오면 됩니다.</strong> 표를 드래그해 복사하면 탭으로 구분된 텍스트가 됩니다.
+     그걸 붙여넣는 것만으로 마커가 만들어지게 했습니다.</p>
+
+<pre><code>const c = r.split('\t');                                <span class="c">// 표 복사 = 탭 구분</span>
+const owner = (c.length > 10 ? c[10] : c[c.length-1]);  <span class="c">// 열 수가 달라져도 담당자 확보</span>
+const isSuv = SUV_KEYS.some(k =&gt; model.startsWith(k));  <span class="c">// 모델명으로 차종 자동 분류</span>
+const cartype = /데모/.test(owner) ? 'demo'
+              : /보관/.test(owner) ? 'display' : 'new'; <span class="c">// 담당자명으로 차량 성격 추론</span></code></pre>
+
+  <p><strong>① 실무 데이터는 형태가 일정하지 않습니다.</strong> 복사 범위에 따라 열 개수가 달라집니다.
+     담당자 열을 고정 위치로 잡지 않고, 열이 모자라면 마지막 열을 쓰도록 폴백을 뒀습니다.</p>
+  <p><strong>② 사람이 안 넣어도 될 건 추론합니다.</strong> 모델명 앞글자로 SUV를 가려내고,
+     담당자 칸의 표기로 시승차·전시차를 구분했습니다. 원래 사람이 매번 고르던 항목입니다.</p>
+  <p><strong>③ 자동으로 넣되, 넣기 전에 보여줍니다.</strong> 파싱 결과를 표로 먼저 띄우고 확인을 받은 뒤 저장합니다.
+     자동 인식은 틀릴 수 있고, 틀린 채로 18건이 한 번에 들어가면 손으로 넣는 것보다 나쁩니다.</p>
+  <p>한 대씩 등록하던 것이 <strong>표 복사 → 붙여넣기 → 확인</strong> 세 동작으로 줄었습니다.</p>
+
+  <h3>결 — 여기까지, 그리고 대가</h3>
+  <p>시연에서 나온 요구를 그 자리에서 받아 구조를 바꿨고, 12개 구역에 18대를 올려 실제 운영 형태로 동작하는 것까지 확인했습니다.
+     <strong>다만 여기까지입니다.</strong> 시연과 검토로 끝났고 정식 도입으로는 이어지지 않았습니다.
+     이미 그 조직을 떠난 사람이 만든 도구였고, 계속 붙어서 다듬을 자리에 있지 않았습니다.</p>
+  <p>최근 다시 열어보니 화면이 비어 있었습니다. Firebase 테스트 모드 규칙에 자동으로 박히는 만료일이 지나 있었고,
+     그 시점부터 모든 읽기·쓰기가 거부되고 있었습니다. <strong>무인증을 택한 대가였습니다</strong> —
+     보안이 규칙 한 줄에 얹혀 있었고, 그 줄이 조용히 죽었습니다. 익명 인증을 붙이고 만료 없는 규칙으로 바꿔 복구했습니다.</p>
+  <div class="note">
+    <b>여기서 배운 것.</b> 진입 장벽을 없앤 판단은 지금도 옳았다고 생각합니다.
+    로그인을 요구했으면 시연 자리에서부터 안 쓰였을 것입니다.
+    하지만 그 선택이 어디에 부담을 옮기는지를 그때는 끝까지 따지지 않았습니다.
+    <b>편의를 위해 뺀 것이 있으면, 그게 무엇을 대신 떠받치고 있는지 확인해야 합니다.</b>
+  </div>
+
+  <div class="links">
+    <a href="https://girihara-bmwgb.static.hf.space">▶ 데모 열기</a>
+    <a href="https://github.com/chein206/bmwgb">코드</a>
+  </div>
+  <p style="font-size:12.5px;color:var(--muted);margin-top:12px">
+    공개 데모의 고객명·차량번호는 전부 가상 값으로 교체했습니다.</p>
+</section>
+
+<!-- ══════════ TOOLS ══════════ -->
+<section class="case" id="tools">
+  <div class="case-tag">CASE 04-05 · 반복되는 습관</div>
+  <h2>Video Cutter · Era</h2>
+  <p class="result">개별 규모는 작습니다. 함께 놓는 이유는 같은 판단이 반복되기 때문입니다.</p>
+
+  <div class="pair">
+    <div>
+      <h3>Video Cutter — 영상 하나로 자막·쇼츠·썸네일</h3>
+      <p>유튜브 영상 하나를 올리려면 자막을 뽑고, 쇼츠로 자를 구간을 고르고, 썸네일을 만들어야 합니다.
+         셋 다 도구가 다르고 셋 다 눈으로 확인해야 합니다.</p>
+      <p><strong>처음엔 완전 자동으로 만들었다가 검토형으로 뒤집었습니다.</strong>
+         LLM이 고른 쇼츠 구간이 애매할 때가 많았고 자막은 고유명사에서 자주 틀렸습니다.
+         결과를 못 믿으니 결국 편집기를 다시 열게 됐습니다. 그래서 단계마다 확인·수정 화면을 넣고
+         <strong>자동 업로드는 아예 뺐습니다.</strong></p>
+      <p>비용은 작업을 쪼개서 잡았습니다. <strong>음성 인식은 로컬 GPU</strong>(faster-whisper, CUDA),
+         <strong>"어느 구간이 쇼츠감인가"라는 판단만 LLM</strong>에 맡겼습니다.
+         판단은 입력이 자막 텍스트뿐이라 토큰이 적게 듭니다.</p>
+      <p>영상 재생에서도 한 번 막혔습니다. Qt 기본 플레이어가 HEVC 코덱을 타서 OpenCV로 프레임을 직접 그렸고,
+         매 틱 hard seek라 느리던 것을 순차 grab 방식으로 바꿔 <strong>약 16배 빨라졌습니다.</strong></p>
+      <div class="metric">PySide6 · faster-whisper(CUDA) · Claude · ffmpeg/NVENC · OpenCV</div>
+    </div>
+
+    <div>
+      <h3>Era — 매일 아침 AI 뉴스 6개, 서버 없이</h3>
+      <p>RSS 수집 → Claude가 관심사 기준으로 선별·요약 → 텔레그램 전송 → 👍/👎 수거.
+         GitHub Actions cron으로만 돕니다. <strong>서버 0대.</strong></p>
+      <p>AI 분야는 읽을 게 너무 많고 대부분은 제게 안 중요합니다. 뉴스레터를 구독하면 남의 관심사가 옵니다.
+         그래서 핵심을 "요약"이 아니라 <strong>"선별"</strong>에 뒀습니다.</p>
+      <p><strong>같은 얘기를 다시 보내지 않게 했습니다.</strong> 랭킹 프롬프트에 최근 7일 발송 제목과
+         이미 설명한 용어집을 함께 넣습니다. 이걸 안 넣으면 같은 이슈가 표현만 바꿔 며칠 연속 올라옵니다.
+         <em>LLM에게 "무엇을 고를까"를 물을 때는 "무엇을 이미 골랐는지"를 같이 줘야 합니다.</em></p>
+      <p><strong>cron을 정시에서 비켰습니다.</strong> <code>47 22 * * *</code> — 정시(:00)는 GitHub 러너 러시아워라
+         지연이 심합니다. 어중간한 분으로 두면 대기열 경쟁이 적어 실제 도착이 안정됩니다.</p>
+      <div class="metric">누적 발송 126건 / 17일 · 서버 비용 0원 · Python · GitHub Actions · Claude</div>
+    </div>
+  </div>
+
+  <h3>같은 원칙이 반복됩니다</h3>
+  <table>
+    <tr><th>프로젝트</th><th>자동으로 하되</th></tr>
+    <tr><td>마커보드</td><td>파싱 결과를 <strong>미리보기</strong>한 뒤 저장</td></tr>
+    <tr><td>SCPAD</td><td>인식이 불확실한 항목은 <strong>사람이 확인</strong></td></tr>
+    <tr><td>휠 시뮬레이터</td><td>전체 배치 전 <strong>3장 파일럿 검수</strong></td></tr>
+    <tr><td>Video Cutter</td><td>단계마다 <strong>검토 화면</strong>, 자동 업로드 제거</td></tr>
+  </table>
+  <p>프로젝트가 달라도 결론이 같습니다.
+     <strong>완전 자동을 목표로 하다 매번 다시 손보는 것보다, AI가 대부분을 만들고 사람이 마무리하는 구조가 현장에서 살아남았습니다.</strong>
+     한 번의 선택이 아니라 반복해서 도달한 판단입니다.</p>
+
+  <h3>Era는 "Eval을 해봤는가"에 대한 답입니다 — 절반만</h3>
+  <p>모델 출력에 사람의 판정을 붙여 로그로 쌓고, 발송 내역과 조인 가능하게 설계한 것까지는 돌아갑니다. 구조는 만들어져 있습니다.</p>
+  <p>다만 <strong>아직 데이터가 부족합니다.</strong> 누적 피드백 11건이고 전부 👍입니다.
+     👎가 0건이라 어느 태그·소스가 실패하는지에 대한 신호가 없습니다. 지금 이 로그로는 선별 기준을 고칠 수 없습니다.</p>
+  <p>원인도 짐작이 갑니다. 사용자가 저 하나뿐이고, 마음에 드는 항목엔 손이 가지만 별로인 항목은 그냥 넘기게 됩니다.
+     <strong>부정 신호를 수동에 맡긴 설계 자체의 문제입니다.</strong>
+     열어보지 않은 링크를 암묵적 부정으로 잡거나, 판정을 강제하는 형태였어야 했습니다.</p>
+
+  <div class="links">
+    <a href="https://github.com/chein206/video-cutter">Video Cutter</a>
+    <a href="https://github.com/chein206/ai-daily-digest">Era</a>
+  </div>
+</section>
+
+<!-- ══════════ PATH ══════════ -->
+<section class="path" id="path">
+  <h2>이력</h2>
+  <p style="margin-bottom:20px">조금 다양합니다. 다만 어느 챕터에서도 발만 담그고 나오지는 않았습니다.</p>
+  <div class="pl"><div class="yr">2026 —</div><div class="ct"><b>SCPAD</b> · 대표 / 1인 개발
+    <div>AI 내장 CRM SaaS 기획·개발·운영. 전시장 9곳 사용</div></div></div>
+  <div class="pl"><div class="yr">2026</div><div class="ct"><b>BYD</b> · 세일즈 컨설턴트
+    <div>신차 영업 4개월</div></div></div>
+  <div class="pl"><div class="yr">2021 — 2026</div><div class="ct"><b>BMW</b> · 세일즈 컨설턴트
+    <div>신차 영업 5년. 상담·견적·계약·출고 관리</div></div></div>
+  <div class="pl"><div class="yr">이전</div><div class="ct"><b>개인 카페 운영 · 연구원</b>
+    <div>카페 3년(권리금 회수 후 정리) · 전자공학 석사, 논문 게재</div></div></div>
+</section>
+
+<footer>
+  <p class="closing">
+    1인으로 도달할 수 있는 크기는 확인했습니다.<br>
+    이제는 혼자서는 닿지 않는 규모의 문제를, 좋은 동료들과 함께 풀고 싶습니다.
+  </p>
+  남광희 ·
+  <a href="mailto:chein206@gmail.com">chein206@gmail.com</a> ·
+  <a href="https://github.com/chein206">github.com/chein206</a>
+</footer>
+
+</div>
+</body>
+</html>
