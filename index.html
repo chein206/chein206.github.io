@@ -153,7 +153,15 @@ h3[id]{scroll-margin-top:64px}
 
 /* ── path ── */
 .path{padding:56px 0;border-bottom:1px solid var(--line)}
-.path h2{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:8px;letter-spacing:-.02em}
+.path h2{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:8px;letter-spacing:-.03em}
+.path h3{font-size:19.5px;font-weight:800;color:var(--ink);letter-spacing:-.028em;line-height:1.4;
+         margin:44px 0 16px;padding:0 0 0 15px;position:relative}
+.path h3::before{content:'';position:absolute;left:0;top:.22em;bottom:.22em;
+                 width:4px;background:var(--accent);border-radius:2px}
+.path p{margin-bottom:14px;max-width:700px}
+.path p strong{color:var(--ink);font-weight:700}
+.path em{font-style:normal;color:var(--ink);font-weight:600}
+@media(max-width:640px){.path h3{font-size:18px;margin:34px 0 14px}}
 .pl{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);font-size:14px}
 .pl:last-child{border:none}
 .pl .yr{font-size:12px;color:var(--muted);min-width:104px;font-weight:600;padding-top:2px}
@@ -1038,26 +1046,47 @@ const cartype = /데모/.test(owner) ? 'demo'
 
 <!-- ══════════ PATH ══════════ -->
 <section class="path" id="path">
-  <h2>이력</h2>
-  <p style="margin-bottom:20px">조금 다양합니다. 다만 어느 챕터에서도 발만 담그고 나오지는 않았습니다.</p>
+  <h2>지나온 자리</h2>
+  <p style="margin-bottom:20px">이력이 조금 다양합니다. 다만 관통하는 게 하나 있습니다.</p>
+
   <div class="pl"><div class="yr">2026 —</div><div class="ct"><b>SCPAD</b> · 대표 / 1인 개발
-    <div>AI 내장 CRM SaaS 기획·개발·운영. 전시장 9곳 사용</div></div></div>
+    <div>AI 내장 CRM SaaS 기획 · 개발 · 운영. 전시장 9곳 사용</div></div></div>
   <div class="pl"><div class="yr">2026</div><div class="ct"><b>BYD</b> · 세일즈 컨설턴트
     <div>신차 영업 4개월</div></div></div>
   <div class="pl"><div class="yr">2021 — 2026</div><div class="ct"><b>BMW</b> · 세일즈 컨설턴트
-    <div>신차 영업 5년. 상담·견적·계약·출고 관리</div></div></div>
-  <div class="pl"><div class="yr">이전</div><div class="ct"><b>개인 카페 운영 · 연구원</b>
-    <div>카페 3년(권리금 회수 후 정리) · 전자공학 석사, 논문 게재</div></div></div>
+    <div>신차 영업 5년. 상담 · 견적 · 계약 · 출고 관리</div></div></div>
+  <div class="pl"><div class="yr">이전</div><div class="ct"><b>개인 카페 운영</b>
+    <div>3년간 직접 운영하고 권리금을 회수해 정리</div></div></div>
+  <div class="pl"><div class="yr">이전</div><div class="ct"><b>연구원 · 전자공학 석사</b>
+    <div>학위 과정 중 연구를 논문 게재까지 마무리</div></div></div>
+
+  <h3 class="path-h">끝을 본 자리들</h3>
+  <p>앞에서 <em>해보지 않고는 판단하지 않는 편</em>이라고 적었습니다.
+     그래서 손댄 것들은 대개 끝까지 갔습니다.</p>
+  <table style="max-width:640px">
+    <tr><td>연구</td><td><strong>논문 게재까지</strong></td></tr>
+    <tr><td>카페</td><td><strong>권리금을 받고 정리하는 것까지</strong></td></tr>
+    <tr><td>영업</td><td><strong>상담부터 출고와 재구매 관리까지</strong></td></tr>
+    <tr><td>SCPAD</td><td><strong>사업자를 내고 돈을 받는 것까지</strong></td></tr>
+  </table>
+  <p>분야는 매번 달랐지만 하는 일은 같았습니다.
+     <strong>문제를 정의하고, 방법을 정하고, 끝까지 가서 결과를 확인하는 것.</strong>
+     어느 챕터에서도 발만 담그고 나오지는 않았습니다.</p>
+  <p>그렇게 한 바퀴를 혼자 돌고 나니 제 크기도 같이 보였습니다.
+     <strong>1인으로 도달할 수 있는 범위는 확인했습니다.</strong>
+     넓게 해본 대신 한 영역을 깊게 파본 경험이 부족하고, 제 판단을 검증해 줄 사람이 없었습니다.</p>
+
+  <div class="statement">
+    <div class="a">이제는 AI를 제품으로 만드는 팀에서 일하고 싶습니다.</div>
+    <div class="b">혼자서는 닿지 않는 크기의 문제를, 좋은 동료들과 함께 끝까지 가보고 싶습니다.</div>
+  </div>
 </section>
 
 <footer>
-  <p class="closing">
-    1인으로 도달할 수 있는 크기는 확인했습니다.<br>
-    이제는 혼자서는 닿지 않는 규모의 문제를, 좋은 동료들과 함께 풀고 싶습니다.
-  </p>
   남광희 ·
   <a href="mailto:chein206@gmail.com">chein206@gmail.com</a> ·
-  <a href="https://github.com/chein206">github.com/chein206</a>
+  <a href="https://github.com/chein206">github.com/chein206</a> ·
+  <a href="https://app.scpadlab.com/demo">SCPAD 데모</a>
 </footer>
 
 </div>
