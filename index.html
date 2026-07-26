@@ -103,6 +103,17 @@ blockquote{border-left:3px solid var(--line);padding:2px 0 2px 16px;margin:0 0 2
 .note b{color:var(--ink)}
 
 
+/* ── 대표 문장 (인물 정의용, 페이지에 1~2회만) ── */
+.statement{margin:46px 0;padding:4px 0 4px 24px;border-left:5px solid var(--accent);max-width:720px}
+.statement .a{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.035em;
+              line-height:1.5;margin-bottom:10px}
+.statement .b{font-size:17px;font-weight:500;color:var(--body);letter-spacing:-.012em;line-height:1.65}
+@media(max-width:640px){
+  .statement{margin:36px 0;padding-left:18px;border-left-width:4px}
+  .statement .a{font-size:20px}
+  .statement .b{font-size:15.5px}
+}
+
 /* ── 모바일 스크린샷 3단 ── */
 .phones{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:10px 0 26px;max-width:780px}
 .phones figure{margin:0}
@@ -664,8 +675,11 @@ footer a{color:var(--body)}
   <p>실제로 해보기 전에는 몰랐던 것들이 있습니다. 결제는 <strong>붙이는 것보다 심사를 통과하는 게 어렵고</strong>,
      해지 처리를 대충 만들면 그게 그대로 클레임이 되고, 약관에 적어두지 않은 상황이 실제로 생깁니다.
      읽어서는 알 수 없고 겪어야 아는 것들이었습니다.</p>
-  <blockquote>해보지 않고는 판단하지 않는 편입니다.<br>
-    어렵다는 말을 들으면, 정말 어려운 건지 안 해봐서 어려워 보이는 건지 직접 확인해야 넘어갑니다.</blockquote>
+  <div class="statement">
+    <div class="a">해보지 않고는 판단하지 않는 편입니다.</div>
+    <div class="b">어렵다는 말을 들으면, 정말 어려운 건지 안 해봐서 어려워 보이는 건지
+      직접 확인해야 넘어갑니다.</div>
+  </div>
 
   <p>맡은 범위는 이렇습니다 — <strong>기획 · 화면 설계 · 개발 · DB 설계 · 결제 연동 · 배포 · 운영 · 장애 대응 · 고객 응대.</strong>
      자랑이 아니라 사실 정보로 적습니다. 넓게 해본 대신 <strong>한 영역을 끝까지 파본 경험은 부족합니다.</strong>
