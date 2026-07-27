@@ -1099,5 +1099,125 @@ const cartype = /데모/.test(owner) ? 'demo'
 </footer>
 
 </div>
+<!-- ══════════════════════════════════════════════════════════════
+     포트폴리오 방문 계측 — index.html 의 </body> 직전에 붙인다
+
+     · IP·User-Agent 원문·쿠키를 저장하지 않는다
+     · 새로고침과 내부 이동은 알림을 울리지 않는다 (is_new=false)
+     · 본인 방문은 ?me=1 한 번으로 영구 제외
+     · Do Not Track 켠 방문자는 아예 보내지 않는다
+     · 실패해도 페이지에 아무 영향 없다 (조용히 무시)
+     ══════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  // ── SCPAD Supabase 프로젝트 (이미 공개된 값) ────────────────
+  var SB_URL  = 'https://mywqptmbwdxzolwfebdf.supabase.co';   // SCPAD 프로젝트
+  var SB_ANON = 'sb_publishable_FaNp_qf73l9tukclscGGpA_WMhwBJxz'; // 공개키. INSERT 만 가능
+  // ────────────────────────────────────────────────────────────
+
+  var ENDPOINT = SB_URL + '/rest/v1/portfolio_hits';
+
+  try {
+    var qs = new URLSearchParams(location.search);
+
+    // 본인 제외 — 주소 뒤에 ?me=1 을 한 번 붙여 열면 이후 영구 제외
+    if (qs.get('me') === '1') { localStorage.setItem('pf_optout', '1'); }
+    if (localStorage.getItem('pf_optout') === '1') return;
+
+    // Do Not Track 존중 (빼고 싶으면 이 두 줄 삭제)
+    var dnt = navigator.doNotTrack || window.doNotTrack;
+    if (dnt === '1' || dnt === 'yes') return;
+
+    // 봇·크롤러 제외
+    if (/bot|crawler|spider|crawl|slurp|preview|headless|lighthouse|monitor/i
+        .test(navigator.userAgent)) return;
+
+    // 지원처 태그 — ?r=cw 로 진입하면 세션 내내 유지
+    var tag = qs.get('r');
+    if (tag) { try { sessionStorage.setItem('pf_tag', tag); } catch (e) {} }
+    else { try { tag = sessionStorage.getItem('pf_tag'); } catch (e) {} }
+
+    // 이번 세션 첫 진입인지 (새로고침·내부 이동은 false → 알림 안 감)
+    var isNew = true;
+    try {
+      isNew = !sessionStorage.getItem('pf_seen');
+      sessionStorage.setItem('pf_seen', '1');
+    } catch (e) {}
+
+    // 리퍼러는 호스트만 — 전체 URL은 남기지 않는다
+    var ref = null;
+    try {
+      if (document.referrer) {
+        var h = new URL(document.referrer).hostname;
+        if (h && h !== location.hostname) ref = h;
+      }
+    } catch (e) {}
+
+    function send(payload, useBeacon) {
+      var body = JSON.stringify(payload);
+      var headers = {
+        'Content-Type': 'application/json',
+        'apikey': SB_ANON,
+        'Authorization': 'Bearer ' + SB_ANON,
+        'Prefer': 'return=minimal'
+      };
+      if (useBeacon && navigator.sendBeacon) {
+        // 페이지를 떠나는 중이라 fetch 가 잘릴 수 있다 → Beacon
+        var blob = new Blob([body], { type: 'application/json' });
+        // Beacon 은 헤더를 못 붙이므로 키를 쿼리로 넘긴다 (anon 키는 공개값)
+        navigator.sendBeacon(ENDPOINT + '?apikey=' + encodeURIComponent(SB_ANON), blob);
+        return;
+      }
+      fetch(ENDPOINT, { method: 'POST', headers: headers, body: body, keepalive: true })
+        .catch(function () {});
+    }
+
+    // ① 진입 기록 — 이게 텔레그램을 울린다
+    send({
+      path: location.pathname.slice(0, 120),
+      tag: tag || null,
+      referrer: ref,
+      device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+      lang: (navigator.language || '').slice(0, 12),
+      is_new: isNew
+    });
+
+    // ② 떠날 때 체류시간·스크롤 깊이 — 알림은 울리지 않는다(is_new=false)
+    var t0 = Date.now(), maxScroll = 0, sent2 = false;
+    function trackScroll() {
+      var doc = document.documentElement;
+      var total = doc.scrollHeight - window.innerHeight;
+      if (total > 0) {
+        var pct = Math.round((window.scrollY / total) * 100);
+        if (pct > maxScroll) maxScroll = Math.min(pct, 100);
+      }
+    }
+    window.addEventListener('scroll', trackScroll, { passive: true });
+
+    function flush() {
+      if (sent2) return;
+      sent2 = true;
+      var dwell = Math.round((Date.now() - t0) / 1000);
+      if (dwell < 3) return;              // 스쳐간 건 기록 안 함
+      send({
+        path: location.pathname.slice(0, 120),
+        tag: tag || null,
+        referrer: ref,
+        device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        is_new: false,
+        dwell_sec: Math.min(dwell, 7200),
+        scroll_pct: maxScroll
+      }, true);
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') flush();
+    });
+    window.addEventListener('pagehide', flush);
+
+  } catch (e) { /* 계측 실패가 페이지를 망가뜨리지 않게 */ }
+})();
+</script>
 </body>
 </html>
