@@ -392,6 +392,15 @@ footer a{color:var(--body)}
      알림 종류가 늘어도 로직은 늘지 않습니다.</p>
   <p>도달은 PWA Web Push로 처리했습니다. <strong>앱을 열지 않아도 닿아야 의미가 있기 때문입니다.</strong></p>
 
+  <p>이 선택들이 합쳐지면 어떤 모양이 되는지는 그림 한 장이 빠릅니다.
+     브라우저 · Serverless · DB · 외부 서비스의 경계를 나누고,
+     <strong>그 경계를 넘을 때 무슨 권한으로 넘는지</strong>까지 표시했습니다 —
+     클라이언트는 anon key와 RLS로만, 권한이 필요한 작업은 서버에서 service_role로 갑니다.</p>
+
+  <div class="links">
+    <a href="arch.html">시스템 구조 전체 보기</a>
+  </div>
+
   <h3 id="s-solve">견적기 밖에서 풀어야 했던 문제들</h3>
   <p>기능 목록에 한 줄로 적힌 것들도 각각 판단이 있었습니다. 그중 다섯 개를 적습니다.</p>
 

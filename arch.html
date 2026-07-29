@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCPAD 시스템 구조 — 남광희</title>
+  <meta name="description" content="자동차 SC 견적·CRM SaaS의 시스템 구조. 1인 개발·운영 기준으로 고른 선택들.">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'JetBrains Mono', ui-monospace, 'Malgun Gothic', monospace; background: #020617; min-height: 100vh; padding: 2rem; color: white; }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .header { margin-bottom: 1.25rem; }
+    .header-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .pulse-dot { width: 12px; height: 12px; background: #22d3ee; border-radius: 50%; animation: pulse 2s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @media (prefers-reduced-motion: reduce) { .pulse-dot { animation: none; } }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+    .subtitle { color: #94a3b8; font-size: 0.875rem; margin-left: 1.75rem; }
+
+    /* ── 왜 이 구조인가 ── */
+    .why { border-left: 3px solid #22d3ee; padding: 0.25rem 0 0.25rem 1rem; margin: 1.5rem 0; max-width: 760px; }
+    .why p { color: #cbd5e1; font-size: 0.8125rem; line-height: 1.85; margin-bottom: 0.5rem; }
+    .why p:last-child { margin-bottom: 0; }
+    .why b { color: white; font-weight: 600; }
+
+    .diagram-container { background: rgba(15, 23, 42, 0.5); border-radius: 1rem; border: 1px solid #1e293b; padding: 1.5rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 1152px; display: block; }
+    .scroll-hint { display: none; color: #64748b; font-size: 0.6875rem; margin: 0 0 0.5rem 0.125rem; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+    .card { background: rgba(15, 23, 42, 0.5); border-radius: 0.75rem; border: 1px solid #1e293b; padding: 1.25rem; }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.violet { background: #a78bfa; }
+    .card-dot.amber { background: #fbbf24; }
+    .card-dot.green { background: #34d399; }
+    .card h3 { font-size: 0.875rem; font-weight: 600; }
+    .card ul { list-style: none; color: #94a3b8; font-size: 0.75rem; line-height: 1.7; }
+    .card li { margin-bottom: 0.375rem; }
+    .card li:last-child { margin-bottom: 0; }
+    .card b { color: #e2e8f0; font-weight: 600; }
+
+    .footer { text-align: center; margin-top: 1.75rem; color: #475569; font-size: 0.75rem; line-height: 2 }
+    .footer a { color: #94a3b8; text-decoration: none; border-bottom: 1px solid #334155; padding-bottom: 1px; }
+    .footer a:hover { color: #22d3ee; border-color: #22d3ee; }
+    .footer .sep { color: #334155; margin: 0 0.5rem; }
+
+    .toolbar { display: flex; gap: 0.5rem; margin-left: auto; flex-shrink: 0; align-items: center; }
+    .toolbar-toggle { background: transparent; border: none; color: #475569; cursor: pointer; font-size: 1.25rem; line-height: 1; padding: 0.25rem 0.5rem; border-radius: 0.375rem; transition: color 0.2s, background 0.2s; }
+    .toolbar-toggle:hover { color: #94a3b8; background: rgba(30, 41, 59, 0.5); }
+    .toolbar-actions { display: none; gap: 0.5rem; }
+    .toolbar.expanded .toolbar-actions { display: flex; }
+    .toolbar-actions button { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; color: #94a3b8; padding: 0.375rem 0.75rem; border-radius: 0.375rem; font-family: inherit; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .toolbar-actions button:hover { background: rgba(51, 65, 85, 0.8); color: white; border-color: #475569; }
+
+    @media (max-width: 1240px) { .scroll-hint { display: block; } }
+    @media (max-width: 640px) {
+      body { padding: 1.25rem 1rem; }
+      h1 { font-size: 1.25rem; }
+      .subtitle { margin-left: 0; }
+      .diagram-container { padding: 1rem; border-radius: 0.75rem; }
+      .why { margin: 1.25rem 0; }
+    }
+    @media print { body { background: #020617; padding: 1rem; } .toolbar, .scroll-hint { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="container" id="report-container">
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>SCPAD 시스템 구조</h1>
+        <div class="toolbar">
+          <div class="toolbar-actions">
+            <button onclick="copyAsImage(this)">Copy</button>
+            <button onclick="downloadPNG(this)">PNG</button>
+            <button onclick="downloadPDF(this)">PDF</button>
+          </div>
+          <button class="toolbar-toggle" onclick="this.parentElement.classList.toggle('expanded')" title="내보내기" aria-label="내보내기">⋯</button>
+        </div>
+      </div>
+      <p class="subtitle">자동차 SC 견적·CRM SaaS — Vanilla JS 단일 HTML + Vercel Serverless + Supabase (app.scpadlab.com)</p>
+    </div>
+
+    <div class="why">
+      <p>구조를 고른 기준은 하나였습니다 — <b>혼자서 유지할 수 있는가.</b></p>
+      <p>상시 켜두는 서버를 한 대도 두지 않았습니다. 정적 HTML + Serverless + 관리형 DB로 붙여
+        <b>장애가 나도 제가 새벽에 일어날 일이 없는 형태</b>로 맞췄습니다.</p>
+      <p>권한 검사는 애플리케이션이 아니라 <b>DB의 RLS</b>에 뒀습니다. 혼자 만들기 때문에
+        제 코드 실수가 곧 고객 데이터 사고가 되는 구조를 피하고 싶었습니다.</p>
+      <p>브랜드(BYD·BMW)는 배포를 나누지 않았습니다. <b>단일 코드베이스 + 런타임 분기</b>로 두고
+        데이터만 <code>brand</code> 컬럼으로 격리했습니다 — 브랜드가 늘어도 배포 대상은 하나입니다.</p>
+    </div>
+
+    <p class="scroll-hint">← 다이어그램은 가로로 스크롤됩니다 →</p>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1152 648" role="img" aria-label="SCPAD 시스템 아키텍처 다이어그램">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- ═══ ARROWS (behind boxes) ═══ -->
+        <!-- OAuth: IdP → Supabase Auth (above both boundaries) -->
+        <path d="M 150 30 L 935 30 L 935 64" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+        <text x="500" y="23" fill="#fb7185" font-size="8" text-anchor="middle">OAuth 2.0 (카카오 · 구글)</text>
+        <!-- SC user → Vercel -->
+        <line x1="150" y1="179" x2="176" y2="179" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="163" y="171" fill="#94a3b8" font-size="8" text-anchor="middle">HTTPS</text>
+        <!-- Demo → demo.html -->
+        <path d="M 150 276 L 172 276 L 172 190 L 196 190" fill="none" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- CDN dep → Vercel clients (runtime load) -->
+        <path d="M 150 528 L 170 528 L 170 470" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arrowhead)"/>
+        <text x="90" y="580" fill="#64748b" font-size="7" text-anchor="middle">런타임 로드 (클라이언트)</text>
+        <!-- Clients → Supabase direct -->
+        <line x1="764" y1="106" x2="822" y2="106" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="794" y="97" fill="#94a3b8" font-size="7" text-anchor="middle">supabase-js</text>
+        <text x="794" y="120" fill="#94a3b8" font-size="7" text-anchor="middle">anon + RLS</text>
+        <!-- Clients → api fetch -->
+        <line x1="420" y1="224" x2="420" y2="284" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="432" y="258" fill="#94a3b8" font-size="8">fetch /api/*</text>
+        <!-- Cron triggers -->
+        <path d="M 620 296 L 620 280 L 285 280 L 285 288" fill="none" stroke="#fb923c" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+        <path d="M 600 326 L 600 346 L 410 346 L 410 358" fill="none" stroke="#fb923c" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+        <path d="M 660 326 L 660 346 L 555 346 L 555 358" fill="none" stroke="#fb923c" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+        <!-- Serverless → Supabase service_role -->
+        <path d="M 762 311 L 794 311 L 794 230 L 822 230" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="794" y="300" fill="#94a3b8" font-size="7" text-anchor="middle">service_role</text>
+        <!-- Row2 → external drops -->
+        <line x1="265" y1="422" x2="265" y2="501" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="410" y1="422" x2="410" y2="501" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="555" y1="422" x2="555" y2="501" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="697" y1="422" x2="697" y2="501" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <!-- ═══ LEFT ACTORS ═══ -->
+        <rect x="20" y="8" width="130" height="50" rx="6" fill="#0f172a"/>
+        <rect x="20" y="8" width="130" height="50" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="85" y="29" fill="white" font-size="10" font-weight="600" text-anchor="middle">Kakao / Google</text>
+        <text x="85" y="44" fill="#94a3b8" font-size="8" text-anchor="middle">소셜 로그인 IdP</text>
+
+        <rect x="20" y="150" width="130" height="58" rx="6" fill="#0f172a"/>
+        <rect x="20" y="150" width="130" height="58" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="85" y="174" fill="white" font-size="11" font-weight="600" text-anchor="middle">SC 사용자</text>
+        <text x="85" y="190" fill="#94a3b8" font-size="8" text-anchor="middle">브라우저 · PWA 설치</text>
+
+        <rect x="20" y="250" width="130" height="52" rx="6" fill="#0f172a"/>
+        <rect x="20" y="250" width="130" height="52" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="85" y="272" fill="white" font-size="10" font-weight="600" text-anchor="middle">데모 방문자</text>
+        <text x="85" y="287" fill="#94a3b8" font-size="8" text-anchor="middle">/demo · 자동 로그인</text>
+
+        <!-- CDN: dependency source (점선 박스, 액터 아님) -->
+        <rect x="20" y="505" width="130" height="50" rx="6" fill="#0f172a"/>
+        <rect x="20" y="505" width="130" height="50" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4,3"/>
+        <text x="85" y="526" fill="white" font-size="9" font-weight="600" text-anchor="middle">CDN (jsdelivr)</text>
+        <text x="85" y="541" fill="#94a3b8" font-size="8" text-anchor="middle">pdf.js · Pretendard</text>
+
+        <!-- ═══ VERCEL BOUNDARY ═══ -->
+        <rect x="180" y="36" width="600" height="430" rx="12" fill="rgba(251, 191, 36, 0.04)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="192" y="56" fill="#fbbf24" font-size="10" font-weight="600">Vercel — app.scpadlab.com (정적 호스팅 + Serverless + Cron · /bmw /bydcrm /demo rewrites)</text>
+
+        <!-- Static clients -->
+        <rect x="200" y="70" width="170" height="72" rx="6" fill="#0f172a"/>
+        <rect x="200" y="70" width="170" height="72" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="285" y="92" fill="white" font-size="11" font-weight="600" text-anchor="middle">index.html</text>
+        <text x="285" y="108" fill="#94a3b8" font-size="8" text-anchor="middle">BYD PC 견적기 + CRM</text>
+        <text x="285" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">할부 · 보조금 · 견적서</text>
+
+        <rect x="385" y="70" width="170" height="72" rx="6" fill="#0f172a"/>
+        <rect x="385" y="70" width="170" height="72" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="470" y="92" fill="white" font-size="11" font-weight="600" text-anchor="middle">crm.html</text>
+        <text x="470" y="108" fill="#94a3b8" font-size="8" text-anchor="middle">BYD/BMW CRM · PWA</text>
+        <text x="470" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">칸반 · AI메시지 · 중도상환</text>
+
+        <rect x="570" y="70" width="190" height="72" rx="6" fill="#0f172a"/>
+        <rect x="570" y="70" width="190" height="72" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="665" y="92" fill="white" font-size="11" font-weight="600" text-anchor="middle">admin.html</text>
+        <text x="665" y="108" fill="#94a3b8" font-size="8" text-anchor="middle">계정 · 보조금 · 금융조건</text>
+        <text x="665" y="122" fill="#94a3b8" font-size="8" text-anchor="middle">월간 운영 무배포 갱신</text>
+
+        <rect x="200" y="160" width="170" height="60" rx="6" fill="#0f172a"/>
+        <rect x="200" y="160" width="170" height="60" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="285" y="183" fill="white" font-size="10" font-weight="600" text-anchor="middle">demo.html</text>
+        <text x="285" y="199" fill="#94a3b8" font-size="8" text-anchor="middle">/demo 브랜드 선택</text>
+
+        <rect x="385" y="160" width="170" height="60" rx="6" fill="#0f172a"/>
+        <rect x="385" y="160" width="170" height="60" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="470" y="183" fill="white" font-size="10" font-weight="600" text-anchor="middle">sw.js + manifest</text>
+        <text x="470" y="199" fill="#94a3b8" font-size="8" text-anchor="middle">브랜드별 PWA · 푸시 수신</text>
+
+        <rect x="570" y="160" width="190" height="104" rx="6" fill="#0f172a"/>
+        <rect x="570" y="160" width="190" height="104" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="665" y="180" fill="white" font-size="10" font-weight="600" text-anchor="middle">공유 도메인 모듈</text>
+        <text x="665" y="197" fill="#94a3b8" font-size="8" text-anchor="middle">hana-calc.js (PMT/IRR)</text>
+        <text x="665" y="211" fill="#94a3b8" font-size="8" text-anchor="middle">bmw-loan.js (중도상환)</text>
+        <text x="665" y="225" fill="#94a3b8" font-size="8" text-anchor="middle">subsidy · byd-vin · finance</text>
+        <text x="665" y="243" fill="#22d3ee" font-size="7" text-anchor="middle">순수함수 — 앱·테스트 단일 소스</text>
+
+        <!-- Serverless row 1 -->
+        <rect x="200" y="290" width="170" height="48" rx="6" fill="#0f172a"/>
+        <rect x="200" y="290" width="170" height="48" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="285" y="309" fill="white" font-size="10" font-weight="600" text-anchor="middle">cleanup.js</text>
+        <text x="285" y="324" fill="#94a3b8" font-size="8" text-anchor="middle">소프트삭제 정리 + 데모 리셋</text>
+
+        <rect x="385" y="290" width="170" height="48" rx="6" fill="#0f172a"/>
+        <rect x="385" y="290" width="170" height="48" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="470" y="309" fill="white" font-size="10" font-weight="600" text-anchor="middle">운영 API</text>
+        <text x="470" y="324" fill="#94a3b8" font-size="8" text-anchor="middle">signup-notify · admin-email</text>
+
+        <rect x="570" y="298" width="190" height="28" rx="4" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+        <text x="665" y="316" fill="#fb923c" font-size="8" text-anchor="middle">Vercel Cron — 00 · 01 · 18 UTC</text>
+
+        <!-- Serverless row 2 -->
+        <rect x="200" y="362" width="130" height="60" rx="6" fill="#0f172a"/>
+        <rect x="200" y="362" width="130" height="60" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="265" y="382" fill="white" font-size="10" font-weight="600" text-anchor="middle">claude.js</text>
+        <text x="265" y="397" fill="#94a3b8" font-size="8" text-anchor="middle">AI 프록시 · 모델 라우팅</text>
+        <text x="265" y="411" fill="#94a3b8" font-size="7" text-anchor="middle">플랜별 사용량 서버 검증</text>
+
+        <rect x="345" y="362" width="130" height="60" rx="6" fill="#0f172a"/>
+        <rect x="345" y="362" width="130" height="60" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="410" y="384" fill="white" font-size="10" font-weight="600" text-anchor="middle">billing-*.js</text>
+        <text x="410" y="400" fill="#94a3b8" font-size="8" text-anchor="middle">발급 · 자동청구 · 환불</text>
+
+        <rect x="490" y="362" width="130" height="60" rx="6" fill="#0f172a"/>
+        <rect x="490" y="362" width="130" height="60" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="555" y="384" fill="white" font-size="10" font-weight="600" text-anchor="middle">push-*.js</text>
+        <text x="555" y="400" fill="#94a3b8" font-size="8" text-anchor="middle">VAPID 웹푸시</text>
+
+        <rect x="635" y="362" width="125" height="60" rx="6" fill="#0f172a"/>
+        <rect x="635" y="362" width="125" height="60" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="697" y="384" fill="white" font-size="10" font-weight="600" text-anchor="middle">sms.js</text>
+        <text x="697" y="400" fill="#94a3b8" font-size="8" text-anchor="middle">SMS 발송</text>
+
+        <!-- ═══ EXTERNAL SERVICES (bottom row) ═══ -->
+        <rect x="200" y="503" width="130" height="52" rx="6" fill="#0f172a"/>
+        <rect x="200" y="503" width="130" height="52" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="265" y="522" fill="white" font-size="10" font-weight="600" text-anchor="middle">Anthropic</text>
+        <text x="265" y="537" fill="#94a3b8" font-size="7.5" text-anchor="middle">Opus · Sonnet · Haiku</text>
+        <text x="265" y="549" fill="#64748b" font-size="7" text-anchor="middle">용도별 분리</text>
+
+        <rect x="345" y="503" width="130" height="52" rx="6" fill="#0f172a"/>
+        <rect x="345" y="503" width="130" height="52" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="410" y="524" fill="white" font-size="10" font-weight="600" text-anchor="middle">PortOne V2</text>
+        <text x="410" y="540" fill="#94a3b8" font-size="8" text-anchor="middle">토스페이 빌링키</text>
+
+        <rect x="490" y="503" width="130" height="52" rx="6" fill="#0f172a"/>
+        <rect x="490" y="503" width="130" height="52" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="555" y="524" fill="white" font-size="10" font-weight="600" text-anchor="middle">FCM / APNs</text>
+        <text x="555" y="540" fill="#94a3b8" font-size="8" text-anchor="middle">푸시 엔드포인트</text>
+
+        <rect x="635" y="503" width="125" height="52" rx="6" fill="#0f172a"/>
+        <rect x="635" y="503" width="125" height="52" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="697" y="524" fill="white" font-size="10" font-weight="600" text-anchor="middle">알리고</text>
+        <text x="697" y="540" fill="#94a3b8" font-size="8" text-anchor="middle">SMS Gateway</text>
+
+        <!-- ═══ SUPABASE BOUNDARY ═══ -->
+        <rect x="810" y="36" width="250" height="430" rx="12" fill="rgba(167, 139, 250, 0.05)" stroke="#a78bfa" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="822" y="56" fill="#a78bfa" font-size="10" font-weight="600">Supabase (PostgreSQL)</text>
+
+        <rect x="826" y="68" width="218" height="50" rx="6" fill="#0f172a"/>
+        <rect x="826" y="68" width="218" height="50" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="935" y="88" fill="white" font-size="10" font-weight="600" text-anchor="middle">Auth</text>
+        <text x="935" y="103" fill="#94a3b8" font-size="8" text-anchor="middle">이메일+OAuth · 브랜드 세션 격리</text>
+
+        <rect x="826" y="140" width="218" height="160" rx="6" fill="#0f172a"/>
+        <rect x="826" y="140" width="218" height="160" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="935" y="160" fill="white" font-size="10" font-weight="600" text-anchor="middle">PostgreSQL + RLS</text>
+        <text x="935" y="180" fill="#94a3b8" font-size="8" text-anchor="middle">profiles (플랜 한도 JSON)</text>
+        <text x="935" y="194" fill="#94a3b8" font-size="8" text-anchor="middle">customers · consultations</text>
+        <text x="935" y="208" fill="#94a3b8" font-size="8" text-anchor="middle">quotes · hana_irr</text>
+        <text x="935" y="224" fill="#64748b" font-size="8" text-anchor="middle">+9 more (subsidies, ai_usage …)</text>
+        <text x="935" y="246" fill="#a78bfa" font-size="7" text-anchor="middle">사용자별 RLS 격리 + brand 컬럼</text>
+        <text x="935" y="260" fill="#a78bfa" font-size="7" text-anchor="middle">멀티테넌시 (BYD / BMW)</text>
+        <text x="935" y="280" fill="#94a3b8" font-size="8" text-anchor="middle">soft delete · 7일 후 완전삭제</text>
+
+        <rect x="826" y="322" width="218" height="46" rx="6" fill="#0f172a"/>
+        <rect x="826" y="322" width="218" height="46" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="935" y="341" fill="white" font-size="10" font-weight="600" text-anchor="middle">SECURITY DEFINER RPC</text>
+        <text x="935" y="356" fill="#94a3b8" font-size="8" text-anchor="middle">anon 가입조회 · 어드민 통계</text>
+
+        <rect x="826" y="390" width="218" height="46" rx="6" fill="#0f172a"/>
+        <rect x="826" y="390" width="218" height="46" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="935" y="409" fill="white" font-size="10" font-weight="600" text-anchor="middle">Storage</text>
+        <text x="935" y="424" fill="#94a3b8" font-size="8" text-anchor="middle">customer-files (사진 · 명함)</text>
+
+        <!-- ═══ DEV/QA (배포 제외) ═══ -->
+        <rect x="810" y="496" width="250" height="82" rx="8" fill="rgba(52, 211, 153, 0.04)" stroke="#34d399" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="822" y="514" fill="#34d399" font-size="9" font-weight="600">검증 · Dev/QA (로컬 전용 · 배포 제외)</text>
+        <text x="935" y="532" fill="#94a3b8" font-size="8" text-anchor="middle">금융사 엑셀 대조 — LibreOffice 재계산</text>
+        <text x="935" y="546" fill="#94a3b8" font-size="8" text-anchor="middle">전차종 자동 검증 (npm run verify:hana)</text>
+        <text x="935" y="560" fill="#94a3b8" font-size="8" text-anchor="middle">OCR · AI메시지 평가 하네스 (tools/)</text>
+
+        <!-- ═══ LEGEND — 한 줄 (모든 경계 밖) ═══ -->
+        <text x="20" y="622" fill="white" font-size="9" font-weight="600">Legend</text>
+        <rect x="90" y="613" width="14" height="10" rx="2" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="110" y="622" fill="#94a3b8" font-size="8">Frontend</text>
+        <rect x="185" y="613" width="14" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="205" y="622" fill="#94a3b8" font-size="8">Serverless</text>
+        <rect x="290" y="613" width="14" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="310" y="622" fill="#94a3b8" font-size="8">DB / Storage</text>
+        <rect x="410" y="613" width="14" height="10" rx="2" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="430" y="622" fill="#94a3b8" font-size="8">외부 서비스</text>
+        <rect x="525" y="613" width="14" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1"/>
+        <text x="545" y="622" fill="#94a3b8" font-size="8">인증 / 보안</text>
+        <rect x="640" y="613" width="14" height="10" rx="2" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+        <text x="660" y="622" fill="#94a3b8" font-size="8">Cron</text>
+        <line x1="720" y1="618" x2="736" y2="618" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="742" y="622" fill="#94a3b8" font-size="8">OAuth 흐름</text>
+        <rect x="840" y="613" width="14" height="10" rx="2" fill="transparent" stroke="#64748b" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="860" y="622" fill="#94a3b8" font-size="8">의존성 · 로컬 도구 (배포 제외)</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>브랜드 멀티테넌시</h3>
+        </div>
+        <ul>
+          <li>• 단일 코드베이스 + 런타임 분기 (<b>?brand=</b> / rewrites)</li>
+          <li>• 데이터는 <b>brand 컬럼으로 완전 격리</b> (BYD / BMW)</li>
+          <li>• 브랜드 세션 격리 — 같은 도메인 교차 로그인 차단</li>
+          <li>• 브랜드별 PWA 아이콘 · 푸시 · 진입 URL</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>데이터 소유권 · 보안</h3>
+        </div>
+        <ul>
+          <li>• <b>권한 검사를 DB(RLS)에</b> — 앱 코드 실수로 뚫리지 않게</li>
+          <li>• 클라이언트는 anon key + RLS, 권한 작업만 service_role</li>
+          <li>• 시크릿 전부 환경변수 — 코드·저장소에 미포함</li>
+          <li>• 플랜 한도(profiles.features)는 <b>서버에서 재검증</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>운영 자동화</h3>
+        </div>
+        <ul>
+          <li>• Cron 3종: 웹푸시 09:00 · 자동청구 10:00 · 정리 03:00 KST</li>
+          <li>• 월간 금융조건(IRR·이손금)은 어드민에서 DB로 — <b>무배포 갱신</b></li>
+          <li>• 결제는 빌링키 자동청구 + 해지 시 <b>잔여일 부분환불</b></li>
+          <li>• 데모 계정 매일 시드 리셋 (실데이터와 RLS 격리)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot green"></div>
+          <h3>믿을 수 있게 만드는 장치</h3>
+        </div>
+        <ul>
+          <li>• 금융 계산은 순수함수(hana-calc.js) — <b>앱과 테스트가 같은 파일</b></li>
+          <li>• 금융사 엑셀 견적서를 정답으로 두고 <b>전차종 자동 대조</b></li>
+          <li>• OCR·AI 메시지는 정답셋 기반 <b>평가 하네스</b>로 회귀 확인</li>
+          <li>• AI가 불확실한 항목은 화면에 표시 — 사람이 확인</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer">
+      SCPAD — 자동차 SC 견적·CRM SaaS · 1인 개발 · 실서비스 운영 중<br>
+      <a href="https://chein206.github.io">포트폴리오</a>
+      <span class="sep">·</span>
+      <a href="https://app.scpadlab.com/demo">로그인 없는 데모</a>
+      <span class="sep">·</span>
+      <a href="https://app.scpadlab.com">app.scpadlab.com</a>
+    </p>
+  </div>
+
+  <script>
+    // 내보내기 라이브러리는 실제로 누를 때만 받는다 (첫 로딩에 ~500KB 얹지 않기 위해)
+    var _libs = null;
+    function loadLibs() {
+      if (_libs) return _libs;
+      function add(src, integrity) {
+        return new Promise(function (res, rej) {
+          var s = document.createElement('script');
+          s.src = src; s.integrity = integrity; s.crossOrigin = 'anonymous';
+          s.onload = res; s.onerror = function () { rej(new Error('load failed: ' + src)); };
+          document.head.appendChild(s);
+        });
+      }
+      _libs = Promise.all([
+        add('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H'),
+        add('https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js', 'sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/')
+      ]).catch(function (e) { _libs = null; throw e; });
+      return _libs;
+    }
+
+    async function shoot() {
+      await loadLibs();
+      var el = document.getElementById('report-container');
+      var r = el.getBoundingClientRect();
+      var pad = 32;
+      return html2canvas(document.body, {
+        backgroundColor: '#020617', scale: 2, useCORS: true,
+        ignoreElements: function (e) { return e.classList && e.classList.contains('toolbar'); },
+        x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad,
+        width: r.width + pad * 2, height: r.height + pad * 2
+      });
+    }
+
+    async function run(btn, fn) {
+      var orig = btn.textContent;
+      btn.textContent = '...';
+      try { await fn(); btn.textContent = '완료'; }
+      catch (e) { btn.textContent = '실패'; }
+      setTimeout(function () { btn.textContent = orig; }, 2000);
+    }
+
+    function copyAsImage(btn) {
+      run(btn, async function () {
+        var canvas = await shoot();
+        var blob = await new Promise(function (r) { canvas.toBlob(r, 'image/png'); });
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      });
+    }
+
+    function downloadPNG(btn) {
+      run(btn, async function () {
+        var canvas = await shoot();
+        var link = document.createElement('a');
+        link.download = 'scpad-architecture.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    function downloadPDF(btn) {
+      run(btn, async function () {
+        var canvas = await shoot();
+        var jsPDF = window.jspdf.jsPDF;
+        var orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+        var pdf = new jsPDF({ orientation: orientation, unit: 'px', format: [canvas.width, canvas.height], hotfixes: ['px_scaling'] });
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('scpad-architecture.pdf');
+      });
+    }
+  </script>
+</body>
+</html>
