@@ -199,6 +199,7 @@ footer a{color:var(--body)}
     <span class="nav-me">남광희</span>
     <div class="nav-links">
       <a href="#scpad">SCPAD</a>
+      <a href="#kuvt">쿠벤팅</a>
       <a href="#wheel">휠 비주얼라이저</a>
       <a href="#board">마커보드</a>
       <a href="#tools">소품</a>
@@ -952,8 +953,454 @@ PWA / TWA · PortOne V2 · Anthropic Claude(모델 라우팅) · pdfplumber</div
 </section>
 
 <!-- ══════════ WHEEL ══════════ -->
+<!-- ══════════ KUVENTING ══════════ -->
+<section class="case" id="kuvt">
+  <div class="case-tag">CASE 02 · 규제 조사부터 보안까지 · 검증 전</div>
+  <h2>동네 매장용 뽑기 이벤트 시스템 — 쿠벤팅</h2>
+  <p class="result">코드를 짜기 전에 <strong>법부터 조사했습니다.</strong> 그 조사 결과가 시스템 설계를 규정했습니다.</p>
+  <div class="metric">MVP 완성 · 배포 (kuvt.scpadlab.com) · 데모 매장 2곳
+Next.js 16 + Supabase · DB 마이그레이션 23개 · 기획 문서 683줄
+유료 고객 0 — 단위 경제 검증 전                          2026년 7월</div>
+
+  <div class="toc">
+    <div class="toc-l">이 케이스에서 다루는 것</div>
+    <a href="#k-why">왜</a>
+    <a href="#k-law">법부터 조사</a>
+    <a href="#k-design">설계 판단</a>
+    <a href="#k-hole">뚫려 있던 것</a>
+    <a href="#k-limit">정직한 한계</a>
+  </div>
+
+  <div class="phones">
+    <figure>
+      <img src="shots/kuvt-board.png" alt="쿠벤팅 카운터 대기화면 — 광고와 티켓판">
+      <figcaption><b>대기화면.</b> 세로의 <b>68~70%가 광고</b>입니다. 남은 티켓 48/50이 항상 떠 있습니다.</figcaption>
+    </figure>
+    <figure>
+      <img src="shots/kuvt-prizes.png" alt="쿠벤팅 상품 소개 — 등급별 남은 수량 공개">
+      <figcaption><b>남은 재고를 그대로 공개합니다.</b> A 1개 · B 3개 · F 26개.
+        <b>이 숫자가 곧 확률입니다.</b></figcaption>
+    </figure>
+    <figure>
+      <img src="shots/kuvt-tickets.png" alt="쿠벤팅 티켓 선택 화면 — 50칸 중 이미 나간 자리">
+      <figcaption><b>티켓 50칸.</b> 이미 나간 자리만 등급이 보입니다.
+        <b>안 뽑힌 칸의 등급은 서버가 내려주지 않습니다.</b></figcaption>
+    </figure>
+  </div>
+
+  <h3 id="k-why">기 — 사장님이 이벤트를 못 여는 진짜 이유</h3>
+  <p>동네 매장의 판촉 수단은 40년째 그대로입니다. 전단지, 스탬프 카드, 그리고 가끔 룰렛.
+     디지털 판촉 도구는 대부분 온라인 쇼핑몰만 봅니다.</p>
+  <p>그런데 사장님들이 이벤트를 안 여는 이유는 도구가 없어서가 아니었습니다.
+     <strong>손해 공포</strong>였습니다. 룰렛을 돌리면 1등이 몇 개 나갈지 모릅니다.
+     경품을 얼마나 준비해야 하는지, 최악의 경우 얼마가 나가는지가 <em>사전에 확정되지 않습니다.</em></p>
+  <p>이걸 푸는 구조는 이미 검증돼 있었습니다 — <strong>이치방쿠지</strong>의 등급제 + 재고 한정 방식입니다.
+     50장을 미리 정해두면 A상이 1개면 딱 1개만 나갑니다. <strong>원가 상한이 확정됩니다.</strong></p>
+  <p>그리고 부수 효과가 하나 더 있습니다. 일반 커머스는 재고가 빠지면 관심이 식는데,
+     <strong>뽑기는 반대입니다.</strong></p>
+
+<pre><code>A상  차슈덮밥 세트 무료   1개 남음   <span class="c">← 이게 보이면 지금 뽑는다</span>
+B상  라멘 1그릇 무료      2개 남음
+E상  1,000원 할인        29개</code></pre>
+
+  <p>팔릴수록 남은 확률이 올라가서 <strong>후반 참여 동기가 더 강해집니다.</strong>
+     굿즈 소매업에서는 이미 다 쓰는 방식인데, <em>매장 판촉에 옮긴 사례는 한국과 일본 모두 찾지 못했습니다.</em></p>
+  <p>여기서 질문이 하나 생겼습니다. <strong>되는 거면 왜 아무도 안 했을까.</strong></p>
+
+  <h3 id="k-law">승 — 만들기 전에 법부터 봤습니다</h3>
+  <p>"아무도 안 한다"는 보통 두 가지 중 하나입니다. 시장이 없거나, 못 하게 막혀 있거나.
+     <strong>어느 쪽인지 모르고 만들면 다 만든 뒤에 못 파는 물건이 됩니다.</strong>
+     그래서 코드보다 규제 조사를 먼저 했습니다.</p>
+  <p>결론은 이랬습니다. <strong>없는 이유는 법으로 금지돼서가 아니었습니다.</strong>
+     이 방식의 재미가 원래 <em>유료 뽑기</em>에서 나오는데, 돈을 받는 순간 사행행위규제법·복표의
+     회색지대에 들어갑니다. 거기에 법적 단층이 있습니다.
+     <strong>무료 또는 구매 부수(자사 상품)로 돌리면 그 단층의 안전한 쪽입니다.</strong></p>
+  <p>그래서 넘으면 안 되는 선을 문서에 먼저 못 박았습니다 — 뽑기 자체에 돈을 받지 않는다,
+     현금성 경품을 걸지 않는다, 상품은 자사 메뉴·할인권으로 한정한다.</p>
+
+  <div class="note">
+    <b>조사가 설계를 바꾼 지점.</b>
+    진짜 조심해야 할 건 사행성이 아니라 <b>표시광고법</b>이었습니다.
+    화면에 "A상 1개 남음"이라고 띄우는 순간, <b>그 숫자는 광고 문구가 됩니다.</b>
+    틀리면 거짓·과장 광고입니다.<br><br>
+    즉 <b>데이터 무결성이 취향이 아니라 법적 요구사항</b>이 됩니다.
+    조작이 불가능해야 하고, 화면 숫자와 DB가 어긋나면 안 됩니다.
+    아래 설계 판단 대부분이 여기서 나왔습니다.
+  </div>
+
+  <h3 id="k-design">전 — 설계 판단</h3>
+
+  <p><strong>① 추첨을 확률이 아니라 재고로 했습니다.</strong>
+     가챠처럼 뽑을 때마다 주사위를 굴리면 A상이 몇 개 나갈지 모릅니다. 사장님의 손해 공포가 그대로 돌아옵니다.
+     그래서 캠페인을 만들 때 <strong>티켓 배열을 미리 섞어 저장</strong>합니다.
+     손님이 고르는 자리는 진짜로 미리 정해져 있습니다. 원가 상한이 수학적으로 보장됩니다.</p>
+
+  <p><strong>② 안 뽑힌 티켓의 내용은 클라이언트로 보내지 않습니다.</strong>
+     화면에 50칸을 그리려면 서버가 50개를 내려줘야 하는데, 거기 등급이 실려 있으면
+     개발자 도구로 정답표를 볼 수 있습니다. 그래서 아직 안 뽑힌 자리는 <code>grade: null</code>로 내립니다.
+     전 테이블 RLS를 켜고 <strong>정책을 0개 두어</strong> 직접 접근을 전면 차단했습니다.</p>
+
+  <p><strong>③ 동시성은 한 줄이 처리합니다.</strong>
+     두 사람이 같은 칸을 동시에 누르면 한 장이 두 번 나갈 수 있습니다. 재고형에서 이건 치명적입니다.</p>
+
+<pre><code>update kuji.tickets set drawn_at = now()
+where campaign_id = ? and box = ? and position = ?
+  and drawn_at is null</code></pre>
+
+  <p>마지막 조건 하나가 전부입니다. DB가 한 명만 통과시키고, 진 쪽은
+     <code>TICKET_TAKEN</code>을 받아 <em>"방금 다른 분이 뽑았습니다"</em> 후 판으로 돌아갑니다.
+     <strong>잠금을 따로 걸지 않았습니다</strong> — 조건부 UPDATE 한 줄이면 되는 일에 락을 얹으면
+     그 락이 또 다른 장애 지점이 됩니다.</p>
+
+  <p><strong>④ 박스를 지우지 않고 회차를 올립니다.</strong>
+     티켓이 다 나가면 새로 채워야 하는데, 기존 티켓을 지우면 <strong>손님이 들고 있는 쿠폰이 사라집니다.</strong>
+     그래서 <code>box</code> 번호를 올리고 새 티켓을 추가합니다. 지난 회차 쿠폰은 계속 살아 있습니다.</p>
+
+  <p><strong>⑤ PIN을 두 개로 나눴습니다.</strong>
+     카운터 PIN은 <em>손님 앞에서 매일 눌립니다.</em> 어깨너머로 보입니다.
+     이게 사장님 로그인 PIN과 같으면 매출·설정 화면이 통째로 넘어갑니다.
+     서버가 <strong>두 값이 같으면 저장을 거부</strong>합니다.</p>
+
+  <p><strong>⑥ 광고가 재미보다 우선입니다.</strong>
+     연출을 다듬다 보면 재미가 목적처럼 느껴집니다. 그런데 <strong>돈을 내는 쪽은 사장님이고,
+     사장님에게 1순위는 광고 노출입니다.</strong> 재미는 손님을 화면 앞에 세우는 수단입니다.
+     그래서 세로 배분을 숫자로 못 박았습니다 — 상단바 6% · <strong>광고 68~70%</strong> · 티켓판 22% · 버튼 2.5%.
+     다른 요소를 넣고 싶으면 <em>광고에서 뺄 만한 값인지 먼저 따집니다.</em></p>
+
+  <p><strong>⑦ 고른 티켓이 돌아 나오게 했습니다.</strong>
+     50칸 중 하나를 눌렀는데 바로 결과로 넘어가면 <strong>"내가 저걸 골랐다"는 감각이 안 남습니다.</strong>
+     종이 쿠지는 뽑은 한 장을 손으로 집는 동작이 그 역할을 합니다.
+     칸의 위치·크기 비율만 자바스크립트가 재서 CSS 변수로 넘기고 움직임은 CSS가 만듭니다 —
+     <em>좌표를 매 프레임 계산하면 태블릿에서 끊깁니다.</em> <code>transform</code>과 <code>opacity</code>만 건드립니다.</p>
+
+  <figure>
+    <img src="shots/kuvt-owner.png" alt="쿠벤팅 사장님 화면 — 등급별 소진과 박스 회차">
+    <figcaption><b>사장님 화면.</b> 등급별 소진과 회차가 한 화면에 있습니다.
+      <b>A상은 1개 중 1개가 이미 나갔습니다</b> — 더 안 나갑니다. 그게 원가 상한입니다.
+      새 박스를 열어도 <b>지난 회차 쿠폰은 계속 살아 있습니다.</b></figcaption>
+  </figure>
+
+  <figure class="bleed">
+    <p class="dgm-hint">← 다이어그램은 가로로 스크롤됩니다 →</p>
+    <div class="diagram">
+        <svg viewBox="0 0 1000 790">
+          <defs>
+            <marker id="kv-arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+            </marker>
+            <marker id="kv-arrowcyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" />
+            </marker>
+            <marker id="kv-arrowemerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#34d399" />
+            </marker>
+            <marker id="kv-arrowviolet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa" />
+            </marker>
+            <marker id="kv-arroworange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#fb923c" />
+            </marker>
+            <marker id="kv-arrowrose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185" />
+            </marker>
+            <pattern id="kv-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+        
+          <!-- Background Grid -->
+          <rect width="100%" height="100%" fill="url(#kv-grid)" />
+        
+          <!-- ============================ ARROWS (behind boxes) ============================ -->
+        
+          <!-- 클라이언트 4종 → 공용 레일 → 클라이언트 번들 -->
+          <path d="M 137 139 H 160" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+          <path d="M 137 229 H 160" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+          <path d="M 137 319 H 160" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+          <path d="M 137 409 H 160" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+          <path d="M 160 139 V 409" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+          <path d="M 160 170 H 191" fill="none" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#kv-arrowcyan)"/>
+          <text x="150" y="94" fill="#22d3ee" font-size="8" text-anchor="middle">HTTPS</text>
+        
+          <!-- 태블릿 → 웹폰트 CDN -->
+          <path d="M 78 440 V 486" fill="none" stroke="#64748b" stroke-width="1.2" marker-end="url(#kv-arrowhead)"/>
+          <text x="84" y="466" fill="#64748b" font-size="7">unicode-range</text>
+        
+          <!-- 클라이언트 번들 → 공개 RPC 6개 -->
+          <path d="M 477 160 H 561" fill="none" stroke="#fb7185" stroke-width="1.5" marker-end="url(#kv-arrowrose)"/>
+          <text x="519" y="152" fill="#fb7185" font-size="8" text-anchor="middle">anon key</text>
+          <text x="519" y="176" fill="#64748b" font-size="7" text-anchor="middle">공개 6개만</text>
+        
+          <!-- Route Handler → RPC 전체 -->
+          <path d="M 477 322 H 520 V 200 H 561" fill="none" stroke="#34d399" stroke-width="1.5" marker-end="url(#kv-arrowemerald)"/>
+          <text x="533" y="258" fill="#34d399" font-size="8">service role</text>
+          <text x="533" y="270" fill="#64748b" font-size="7">전체 25개</text>
+        
+          <!-- Route Handler → Storage -->
+          <path d="M 477 352 H 505 V 512 H 561" fill="none" stroke="#34d399" stroke-width="1.5" marker-end="url(#kv-arrowemerald)"/>
+        
+          <!-- RPC → Postgres -->
+          <path d="M 655 227 V 266" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#kv-arrowviolet)"/>
+        
+          <!-- Supabase Auth → RPC (is_admin 확인) -->
+          <path d="M 773 150 H 749" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="5,5" marker-end="url(#kv-arrowrose)"/>
+          <text x="762" y="196" fill="#fb7185" font-size="7" text-anchor="middle">JWT</text>
+        
+          <!-- Postgres → Realtime -->
+          <path d="M 865 422 V 456" fill="none" stroke="#fb923c" stroke-width="1.5" marker-end="url(#kv-arroworange)"/>
+        
+          <!-- Realtime → 카운터 태블릿 (판 갱신 되돌아감) -->
+          <path d="M 865 562 V 650 H 175 V 139 H 139" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#kv-arroworange)"/>
+          <text x="520" y="644" fill="#fb923c" font-size="8" text-anchor="middle">tickets UPDATE 밀어내기 · 태블릿 여러 대가 같이 갱신된다</text>
+        
+          <!-- ============================ 클라이언트 ============================ -->
+          <text x="78" y="76" fill="#94a3b8" font-size="10" font-weight="600" text-anchor="middle">클라이언트</text>
+        
+          <rect x="20" y="110" width="117" height="58" rx="6" fill="#0f172a"/>
+          <rect x="20" y="110" width="117" height="58" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="78" y="132" fill="white" font-size="11" font-weight="600" text-anchor="middle">카운터 태블릿</text>
+          <text x="78" y="147" fill="#94a3b8" font-size="8" text-anchor="middle">세로 800×1280</text>
+          <text x="78" y="160" fill="#22d3ee" font-size="7" text-anchor="middle">/board/[boardToken]</text>
+        
+          <rect x="20" y="200" width="117" height="58" rx="6" fill="#0f172a"/>
+          <rect x="20" y="200" width="117" height="58" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="78" y="222" fill="white" font-size="11" font-weight="600" text-anchor="middle">사장님 폰</text>
+          <text x="78" y="237" fill="#94a3b8" font-size="8" text-anchor="middle">점주</text>
+          <text x="78" y="250" fill="#22d3ee" font-size="7" text-anchor="middle">/owner/[ownerToken]</text>
+        
+          <rect x="20" y="290" width="117" height="58" rx="6" fill="#0f172a"/>
+          <rect x="20" y="290" width="117" height="58" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="78" y="312" fill="white" font-size="11" font-weight="600" text-anchor="middle">운영자 PC</text>
+          <text x="78" y="327" fill="#94a3b8" font-size="8" text-anchor="middle">어드민 콘솔</text>
+          <text x="78" y="340" fill="#22d3ee" font-size="7" text-anchor="middle">/admin</text>
+        
+          <rect x="20" y="380" width="117" height="58" rx="6" fill="#0f172a"/>
+          <rect x="20" y="380" width="117" height="58" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="78" y="402" fill="white" font-size="11" font-weight="600" text-anchor="middle">손님 폰 (QR)</text>
+          <text x="78" y="417" fill="#94a3b8" font-size="8" text-anchor="middle">쿠폰 열람·사용</text>
+          <text x="78" y="430" fill="#22d3ee" font-size="7" text-anchor="middle">/c/[id]/[code]</text>
+        
+          <!-- 웹폰트 CDN -->
+          <rect x="20" y="488" width="117" height="54" rx="6" fill="#0f172a"/>
+          <rect x="20" y="488" width="117" height="54" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="78" y="508" fill="white" font-size="10" font-weight="600" text-anchor="middle">웹폰트 CDN</text>
+          <text x="78" y="522" fill="#94a3b8" font-size="8" text-anchor="middle">Google Fonts</text>
+          <text x="78" y="534" fill="#94a3b8" font-size="8" text-anchor="middle">jsDelivr</text>
+        
+          <!-- ============================ Vercel 경계 ============================ -->
+          <rect x="175" y="58" width="310" height="540" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
+          <text x="187" y="76" fill="#fbbf24" font-size="10" font-weight="600">Vercel · kuvt.scpadlab.com</text>
+          <text x="187" y="88" fill="#64748b" font-size="7">Next.js 16.2.12 · App Router · Root Dir = app/</text>
+        
+          <!-- 클라이언트 번들 -->
+          <rect x="193" y="100" width="284" height="150" rx="6" fill="#0f172a"/>
+          <rect x="193" y="100" width="284" height="150" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+          <text x="335" y="122" fill="white" font-size="12" font-weight="600" text-anchor="middle">클라이언트 번들</text>
+          <text x="335" y="138" fill="#94a3b8" font-size="9" text-anchor="middle">React 19 · TypeScript strict · "use client"</text>
+          <text x="212" y="160" fill="#94a3b8" font-size="8">• BoardClient — 6단 상태기계</text>
+          <text x="212" y="174" fill="#94a3b8" font-size="8">• MotionAd — 광고를 CSS로 돌린다 (MP4 없음)</text>
+          <text x="212" y="188" fill="#94a3b8" font-size="8">• Ticket — 티켓 아트 3크기 (SVG + CSS)</text>
+          <text x="212" y="202" fill="#94a3b8" font-size="8">• OwnerClient · AdminClient · CouponClient</text>
+          <text x="212" y="220" fill="#22d3ee" font-size="7">boardArt 테마 5 · fonts 5 · sfx Web Audio 합성</text>
+          <text x="212" y="234" fill="#22d3ee" font-size="7">clientImage Canvas 리사이즈 · qrcode-generator</text>
+        
+          <!-- Route Handlers -->
+          <rect x="193" y="292" width="284" height="110" rx="6" fill="#0f172a"/>
+          <rect x="193" y="292" width="284" height="110" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+          <text x="335" y="314" fill="white" font-size="12" font-weight="600" text-anchor="middle">Route Handler · 19개</text>
+          <text x="212" y="334" fill="#94a3b8" font-size="8">• /api/owner/[token]/ board ads prizes image pin</text>
+          <text x="212" y="347" fill="#94a3b8" font-size="8">&#160;&#160;newbox redeem rotate stats</text>
+          <text x="212" y="362" fill="#94a3b8" font-size="8">• /api/admin/ overview coupons</text>
+          <text x="212" y="375" fill="#94a3b8" font-size="8">• /api/admin/stores/[id] · /ads · /image</text>
+          <text x="212" y="392" fill="#34d399" font-size="7">server-only · 이미지 헤더 재검증(sharp 없음)</text>
+        
+          <!-- 권한 게이트 (security group) -->
+          <rect x="185" y="430" width="300" height="106" rx="8" fill="transparent" stroke="#fb7185" stroke-width="1" stroke-dasharray="4,4"/>
+          <text x="193" y="444" fill="#fb7185" font-size="8">신뢰 경계 3개</text>
+        
+          <rect x="193" y="452" width="284" height="76" rx="6" fill="#0f172a"/>
+          <rect x="193" y="452" width="284" height="76" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+          <text x="335" y="472" fill="white" font-size="11" font-weight="600" text-anchor="middle">권한 게이트 · lib/</text>
+          <text x="212" y="490" fill="#94a3b8" font-size="8">• resolveOwner — ownerToken + 사장님 PIN</text>
+          <text x="212" y="503" fill="#94a3b8" font-size="8">• requireAdmin — Bearer JWT + admins 화이트리스트</text>
+          <text x="212" y="516" fill="#94a3b8" font-size="8">• getAdmin — service-role 클라이언트</text>
+        
+          <!-- 정적 자산 -->
+          <rect x="193" y="552" width="284" height="34" rx="6" fill="#0f172a"/>
+          <rect x="193" y="552" width="284" height="34" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="335" y="567" fill="white" font-size="10" font-weight="600" text-anchor="middle">정적 자산</text>
+          <text x="335" y="579" fill="#94a3b8" font-size="8" text-anchor="middle">/art/*.svg (기요셰·전각·검인) · /img/menu-*.jpg</text>
+        
+          <!-- ============================ Supabase 경계 ============================ -->
+          <rect x="545" y="58" width="430" height="540" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
+          <text x="557" y="76" fill="#fbbf24" font-size="10" font-weight="600">Supabase</text>
+          <text x="557" y="88" fill="#64748b" font-size="7">Postgres · Auth · Storage · Realtime</text>
+        
+          <!-- RPC 관문 -->
+          <rect x="561" y="100" width="188" height="127" rx="6" fill="#0f172a"/>
+          <rect x="561" y="100" width="188" height="127" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+          <text x="655" y="121" fill="white" font-size="11" font-weight="600" text-anchor="middle">RPC 관문</text>
+          <text x="655" y="135" fill="#94a3b8" font-size="8" text-anchor="middle">security definer</text>
+          <text x="574" y="156" fill="#94a3b8" font-size="8">공개 6개 (anon):</text>
+          <text x="574" y="168" fill="#fb7185" font-size="7">get_board_config · open_session · get_board</text>
+          <text x="574" y="179" fill="#fb7185" font-size="7">check_pass · draw · get_coupon</text>
+          <text x="574" y="196" fill="#94a3b8" font-size="8">서버 전용 19개 (service_role)</text>
+          <text x="574" y="216" fill="#fbbf24" font-size="7">016_lockdown: PUBLIC 기본 부여까지 회수</text>
+        
+          <!-- Supabase Auth -->
+          <rect x="773" y="100" width="186" height="80" rx="6" fill="#0f172a"/>
+          <rect x="773" y="100" width="186" height="80" rx="6" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1.5"/>
+          <text x="866" y="121" fill="white" font-size="11" font-weight="600" text-anchor="middle">Supabase Auth</text>
+          <text x="866" y="137" fill="#94a3b8" font-size="8" text-anchor="middle">이메일 + 비밀번호</text>
+          <text x="866" y="151" fill="#94a3b8" font-size="8" text-anchor="middle">운영자 전용</text>
+          <text x="866" y="168" fill="#fb7185" font-size="7" text-anchor="middle">kuji.admins 화이트리스트</text>
+        
+          <!-- Postgres -->
+          <rect x="561" y="268" width="398" height="154" rx="6" fill="#0f172a"/>
+          <rect x="561" y="268" width="398" height="154" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+          <text x="760" y="290" fill="white" font-size="12" font-weight="600" text-anchor="middle">Postgres · 스키마 kuji</text>
+          <text x="760" y="306" fill="#fb7185" font-size="9" text-anchor="middle">RLS 켜짐 · 정책 0개 → 직접 접근 전면 차단</text>
+        
+          <text x="580" y="330" fill="#94a3b8" font-size="8">• stores — 매장 · owner_token · PIN 2종</text>
+          <text x="580" y="344" fill="#94a3b8" font-size="8">• campaigns — theme · font · ads(jsonb)</text>
+          <text x="580" y="358" fill="#94a3b8" font-size="8">• prizes — 등급별 상품 · 수량 · 사용시점</text>
+          <text x="580" y="372" fill="#94a3b8" font-size="8">• tickets — 50칸, 셔플된 자리 ↔ 등급</text>
+          <text x="780" y="330" fill="#94a3b8" font-size="8">• coupons — 코드 · 만료 · 사용여부</text>
+          <text x="780" y="344" fill="#94a3b8" font-size="8">• draw_passes — 직원 확인 세션</text>
+          <text x="780" y="358" fill="#94a3b8" font-size="8">• rate_events — 분당 뽑기 제한</text>
+          <text x="780" y="372" fill="#94a3b8" font-size="8">• admins — 운영자 화이트리스트</text>
+          <text x="580" y="400" fill="#a78bfa" font-size="7">마이그레이션 23개 (002 → 023) · schema.sql + seed 3종</text>
+          <text x="580" y="412" fill="#a78bfa" font-size="7">023: 테마 = 판 밝기 × 문양, 옛 이름은 트리거가 옮긴다</text>
+        
+          <!-- Storage -->
+          <rect x="561" y="462" width="188" height="100" rx="6" fill="#0f172a"/>
+          <rect x="561" y="462" width="188" height="100" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+          <text x="655" y="483" fill="white" font-size="11" font-weight="600" text-anchor="middle">Storage</text>
+          <text x="655" y="498" fill="#94a3b8" font-size="8" text-anchor="middle">버킷 kuventing</text>
+          <text x="574" y="516" fill="#94a3b8" font-size="8">공개 읽기 / service-role 쓰기</text>
+          <text x="574" y="529" fill="#94a3b8" font-size="8">&lt;campaignId&gt;/menu-0-*.jpg</text>
+          <text x="574" y="542" fill="#94a3b8" font-size="8">교체·삭제 시 고아 파일 정리</text>
+          <text x="574" y="554" fill="#fbbf24" font-size="7">이름에 ad- 안 쓴다 — 차단기가 지운다</text>
+        
+          <!-- Realtime -->
+          <rect x="773" y="462" width="186" height="100" rx="6" fill="#0f172a"/>
+          <rect x="773" y="462" width="186" height="100" rx="6" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1.5"/>
+          <text x="866" y="483" fill="white" font-size="11" font-weight="600" text-anchor="middle">Realtime</text>
+          <text x="866" y="498" fill="#94a3b8" font-size="8" text-anchor="middle">postgres_changes</text>
+          <text x="786" y="516" fill="#94a3b8" font-size="8">kuji.tickets UPDATE 구독</text>
+          <text x="786" y="529" fill="#94a3b8" font-size="8">+ 6초 폴링 (백업)</text>
+          <text x="786" y="548" fill="#fb923c" font-size="7">한 매장 태블릿 여러 대 동기화</text>
+        
+          <!-- ============================ LEGEND ============================ -->
+          <text x="20" y="600" fill="white" font-size="10" font-weight="600">Legend</text>
+        
+          <rect x="20" y="612" width="16" height="10" rx="2" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+          <text x="42" y="620" fill="#94a3b8" font-size="8">브라우저 코드</text>
+        
+          <rect x="20" y="628" width="16" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+          <text x="42" y="636" fill="#94a3b8" font-size="8">서버 코드</text>
+        
+          <rect x="20" y="644" width="16" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+          <text x="42" y="652" fill="#94a3b8" font-size="8">데이터 · 파일</text>
+        
+          <rect x="20" y="660" width="16" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1"/>
+          <text x="42" y="668" fill="#94a3b8" font-size="8">인증 · 권한</text>
+        
+          <rect x="20" y="676" width="16" height="10" rx="2" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1"/>
+          <text x="42" y="684" fill="#94a3b8" font-size="8">실시간 밀어내기</text>
+        
+          <rect x="20" y="692" width="16" height="10" rx="2" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1"/>
+          <text x="42" y="700" fill="#94a3b8" font-size="8">외부 · 클라이언트</text>
+        
+          <rect x="20" y="708" width="16" height="10" rx="2" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="42" y="716" fill="#94a3b8" font-size="8">호스팅 경계</text>
+        
+          <line x1="20" y1="730" x2="36" y2="730" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="42" y="733" fill="#94a3b8" font-size="8">인증 흐름</text>
+        
+          <rect x="20" y="740" width="16" height="10" rx="2" fill="transparent" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="42" y="748" fill="#94a3b8" font-size="8">신뢰 경계</text>
+        
+          <!-- 없는 것 -->
+          <text x="230" y="700" fill="#475569" font-size="9" font-weight="600">없는 것</text>
+          <text x="230" y="716" fill="#475569" font-size="8">결제 · 이메일/SMS · 분석 · 별도 CDN · 이미지 서비스</text>
+          <text x="230" y="730" fill="#475569" font-size="8">상태관리 라이브러리 · CSS 프레임워크 · 음원 파일 · MP4</text>
+          <text x="230" y="748" fill="#475569" font-size="8">빌드 의존성 6개뿐 — next · react · react-dom · supabase-js · qrcode-generator · server-only</text>
+        </svg>
+    </div>
+    <figcaption><b>구조 전체.</b> 왼쪽 아래에 <b>신뢰 경계 3개</b>를 적어뒀습니다 —
+      anon 키로 열리는 함수 6개 / 사장님은 주소 토큰 + PIN / 운영자는 JWT + 화이트리스트.
+      <b>테이블 직접 접근 경로는 아예 없습니다.</b> 모든 길이 <code>security definer</code> 함수 뒤에 있습니다.</figcaption>
+  </figure>
+
+  <h3 id="k-hole">뚫려 있던 것 — <code>revoke from anon</code>은 안 막습니다</h3>
+  <p>광고 편집 기능을 검증하다 <strong>처음부터 있던 구멍</strong>을 찾았습니다.
+     이 프로젝트에서 나온 가장 심각한 실수라 문서에 그대로 남겨뒀습니다.</p>
+  <p>서버 전용 함수를 이렇게 막았다고 생각했습니다.</p>
+
+<pre><code>revoke all on function kuji.foo(...) from anon, authenticated;
+grant execute on function kuji.foo(...) to service_role;</code></pre>
+
+  <p><strong>이게 안 막습니다.</strong> Postgres는 함수를 만들면 EXECUTE를 <strong>PUBLIC에 기본으로 줍니다.</strong>
+     <code>anon</code>은 PUBLIC을 물려받으므로, anon 이름으로 회수해도 PUBLIC 경로가 그대로 남습니다.
+     그리고 <strong>anon 키는 브라우저 번들에 들어갑니다.</strong></p>
+  <p><strong>적혀 있는 SQL을 믿지 않고 anon 키로 직접 호출해봤습니다.</strong>
+     서버 전용 함수 19개 중 <strong>막힌 것 0개.</strong></p>
+  <table>
+    <tr><th>함수</th><th>되던 일</th></tr>
+    <tr><td><code>admin_list_stores</code></td><td>모든 매장의 주소 토큰 · PIN 2종 전량 조회</td></tr>
+    <tr><td><code>admin_delete_store</code></td><td>아무 매장이나 삭제</td></tr>
+    <tr><td><code>set_prizes</code> · <code>rotate_*</code></td><td>상품 · 주소 임의 변경</td></tr>
+    <tr><td><code>redeem</code></td><td>쿠폰 임의 사용처리</td></tr>
+  </table>
+  <p>토큰과 PIN이 함께 나오므로 사장님 화면이 통째로 넘어갑니다.
+     <strong>RLS로 테이블을 잠근 것은 제대로 동작했습니다</strong> — 뚫린 건 <code>security definer</code> 함수뿐이었습니다.
+     그런데 이 설계는 "모든 접근을 함수로 한다"였으니, <em>잠근 문 옆에 벽이 없었던 셈입니다.</em></p>
+  <p>고칠 때 함수를 나열하지 않았습니다. 나열하면 다음에 만드는 함수가 또 뚫립니다.</p>
+  <table>
+    <tr><th>순서</th><th>무엇</th></tr>
+    <tr><td>1</td><td>스키마의 <strong>모든</strong> 함수에서 <code>public, anon, authenticated</code> 회수 → service_role만</td></tr>
+    <tr><td>2</td><td>화면이 실제로 부르는 <strong>6개만</strong> 다시 anon에 개방</td></tr>
+    <tr><td>3</td><td><code>alter default privileges ... revoke execute on functions from public</code><br>
+        — <strong>앞으로 만드는 함수도 기본이 닫힘</strong></td></tr>
+  </table>
+  <blockquote>권한은 선언이 아니라 확인입니다.</blockquote>
+  <p>막았다고 적어 둔 SQL을 믿었고, anon 키로 실제로 호출해보기 전까지 몰랐습니다.
+     지금은 <strong>검증 스크립트가 서버 전용 19개를 매번 찔러봅니다.</strong>
+     사람이 기억해서 지키는 규칙은 언젠가 빠집니다.</p>
+
+  <h3 id="k-limit">결 — 정직하게, 아직 검증 전입니다</h3>
+  <p>시스템은 돌아갑니다. 배포돼 있고 데모 매장 2곳으로 전 흐름이 검증됩니다.
+     <strong>그런데 유료 고객은 0입니다.</strong> 그리고 계산을 해보니 지금 모델로는 숫자가 안 맞습니다.</p>
+  <table>
+    <tr><th>가정</th><th>값</th></tr>
+    <tr><td>건당 가격</td><td>40만원 (1주 캠페인 패키지)</td></tr>
+    <tr><td>1인 처리 한계</td><td>월 6~8건</td></tr>
+    <tr><td>구조</td><td><strong>1회성.</strong> 구독이 아니라 매달 새 고객이 필요</td></tr>
+  </table>
+  <p>매달 6~8곳을 <strong>새로</strong> 뚫어야 하는데, 신규 영업과 실행을 혼자 하면 현실적 한계는 그 절반입니다.
+     <strong>판매 대상을 잘못 잡은 것</strong>이라고 보고 있습니다 —
+     매장 한 곳이 아니라 <em>매장을 여러 개 가진 쪽</em>(프랜차이즈 본사 · 상권 단체)에 팔아야
+     한 번의 영업이 수십 곳으로 갑니다.</p>
+  <p>기술 해자도 없습니다. 잘되면 카피는 2주면 나옵니다. 이것도 문서에 그대로 적어뒀습니다.
+     <strong>방어선은 코드가 아니라 업종별 캠페인 실적 데이터</strong>라고 보고 있는데,
+     그건 캠페인이 수십 건 쌓여야 생깁니다.</p>
+
+  <div class="note">
+    <b>그래서 이 케이스를 넣는 이유.</b>
+    이건 성공 사례가 아닙니다. <b>만들기 전에 조사하고, 조사 결과로 설계를 정하고,
+    내 실수를 스스로 찾아 고치고, 사업성을 냉정하게 계산한 기록</b>입니다.<br><br>
+    남은 산출물은 이렇습니다 — 기획 683줄 · 사업계획서 · 법률·규제 조사 ·
+    화면 설계 근거 문서 · 이미지 규격서. <b>코드보다 문서가 먼저 나왔고, 그 순서가 의도된 것입니다.</b>
+  </div>
+
+  <div class="metric">Next.js 16 · TypeScript · Supabase(PostgreSQL) · RLS 전면 차단 + security definer
+Storage · Supabase Auth(운영자) · PWA · Wake Lock · Vercel
+빈도 제한 · PIN 대입 잠금 · 주소 재발급 · 감사 가능한 회차 구조</div>
+</section>
+
 <section class="case" id="wheel">
-  <div class="case-tag">CASE 02 · 외주 납품 · 제작 및 운영 테스트 중</div>
+  <div class="case-tag">CASE 03 · 외주 납품 · 제작 및 운영 테스트 중</div>
   <h2>휠 장착 시뮬레이터 — 휠타이어샵</h2>
   <p class="result">휠·타이어 매장을 위한 장착 시뮬레이터. 의뢰를 받아 제작했고, 현재 운영 테스트 중입니다.</p>
   <div class="metric">차종 27종 · 브랜드 13개 · 차량 색상 11종 · 휠 제품샷 36장
@@ -1071,7 +1518,7 @@ PWA / TWA · PortOne V2 · Anthropic Claude(모델 라우팅) · pdfplumber</div
 
 <!-- ══════════ BOARD ══════════ -->
 <section class="case" id="board">
-  <div class="case-tag">CASE 03 · 아날로그 업무 → 도구</div>
+  <div class="case-tag">CASE 04 · 아날로그 업무 → 도구</div>
   <h2>전시장 차량 위치 보드</h2>
   <p class="result">화이트보드와 전화 문의를 대체하기 위해 만든 웹 도구.
      BMW에서 5년간 겪은 문제를 퇴사 후 도구로 만들어 제안했습니다.</p>
@@ -1178,7 +1625,7 @@ const cartype = /데모/.test(owner) ? 'demo'
 
 <!-- ══════════ TOOLS ══════════ -->
 <section class="case" id="tools">
-  <div class="case-tag">CASE 04-05 · 겪어보려고 만든 것</div>
+  <div class="case-tag">CASE 05-06 · 겪어보려고 만든 것</div>
   <h2>Video Cutter · Era</h2>
   <p class="result">이 둘은 팔려고 만든 게 아닙니다. <strong>해보려고 만들었습니다.</strong></p>
   <p>규모는 작습니다. 다만 안 해보면 모르는 것들이 있어서 손을 댔고,
