@@ -961,9 +961,9 @@ PWA / TWA · PortOne V2 · Anthropic Claude(모델 라우팅) · pdfplumber</div
   <h2>재미로 세우고, 그 화면이 광고가 된다 — 쿠벤팅</h2>
   <p class="result">이름 그대로입니다 — <strong>쿠지(뽑기) + 이벤트 + 마케팅.</strong>
      매장이 <strong>기간을 정해(보통 3~7일) 뽑기 이벤트를 열고, 그 화면으로 자기 메뉴를 광고하는</strong> 시스템입니다.</p>
-  <div class="metric">MVP 완성 · 배포 (kuvt.scpadlab.com) · 데모 매장 2곳
+  <div class="metric">2026-07-29 착수 — 규제 조사 · 기획 · 개발 · 배포까지 <b>3일</b> · 커밋 40개
 Next.js 16 + Supabase · DB 마이그레이션 23개 · 기획 문서 683줄
-유료 고객 0 — 단위 경제 검증 전                          2026년 7월</div>
+배포 완료(kuvt.scpadlab.com) · 유료 고객 0 — 실전 검증 전     2026년 7월</div>
 
   <div class="toc">
     <div class="toc-l">이 케이스에서 다루는 것</div>
@@ -971,7 +971,7 @@ Next.js 16 + Supabase · DB 마이그레이션 23개 · 기획 문서 683줄
     <a href="#k-law">법부터 조사</a>
     <a href="#k-design">설계 판단</a>
     <a href="#k-hole">뚫려 있던 것</a>
-    <a href="#k-limit">정직한 한계</a>
+    <a href="#k-limit">3일 · 아직 모르는 것</a>
   </div>
 
   <div class="phones">
@@ -1360,19 +1360,29 @@ where campaign_id = ? and box = ? and position = ?
       <b>테이블 직접 접근 경로는 아예 없습니다.</b> 모든 길이 <code>security definer</code> 함수 뒤에 있습니다.</figcaption>
   </figure>
 
-  <h3 id="k-hole">뚫려 있던 것 — <code>revoke from anon</code>은 안 막습니다</h3>
+  <h3 id="k-hole">뚫려 있던 것 — 잠갔다고 적어둔 문이 안 잠겨 있었습니다</h3>
   <p>광고 편집 기능을 검증하다 <strong>처음부터 있던 구멍</strong>을 찾았습니다.
      이 프로젝트에서 나온 가장 심각한 실수라 문서에 그대로 남겨뒀습니다.</p>
-  <p>서버 전용 함수를 이렇게 막았다고 생각했습니다.</p>
+
+  <div class="note">
+    <b>먼저 구조를 그림으로.</b> 데이터가 든 방(테이블)은 문을 전부 잠갔습니다.
+    대신 <b>창구(함수)</b>를 만들어서, 필요한 건 창구에 요청해야만 받을 수 있게 했습니다.
+    창구는 두 종류입니다 — <b>손님용</b>(뽑기 화면이 쓰는 것)과 <b>직원용</b>(매장 삭제·상품 변경 같은 것).<br><br>
+    직원용 창구에는 <b>"손님 출입 금지"라고 써 붙였습니다.</b> 그게 아래 SQL입니다.
+  </div>
 
 <pre><code>revoke all on function kuji.foo(...) from anon, authenticated;
 grant execute on function kuji.foo(...) to service_role;</code></pre>
 
-  <p><strong>이게 안 막습니다.</strong> Postgres는 함수를 만들면 EXECUTE를 <strong>PUBLIC에 기본으로 줍니다.</strong>
-     <code>anon</code>은 PUBLIC을 물려받으므로, anon 이름으로 회수해도 PUBLIC 경로가 그대로 남습니다.
-     그리고 <strong>anon 키는 브라우저 번들에 들어갑니다.</strong></p>
-  <p><strong>적혀 있는 SQL을 믿지 않고 anon 키로 직접 호출해봤습니다.</strong>
-     서버 전용 함수 19개 중 <strong>막힌 것 0개.</strong></p>
+  <p><strong>그런데 이 건물에는 규정이 하나 더 있었습니다.</strong>
+     Postgres는 창구를 새로 만들면 <strong>"누구나 이용 가능"을 기본값으로 붙입니다</strong>(<code>PUBLIC</code>).
+     제가 써 붙인 "손님 출입 금지"는 <em>손님이라는 이름표 하나를 막은 것</em>이었고,
+     <strong>"누구나"라는 통로는 그대로 열려 있었습니다.</strong></p>
+  <p>그리고 그 "누구나" 열쇠는 숨겨진 게 아닙니다.
+     <strong>웹페이지 소스를 열면 들어 있습니다</strong>(<code>anon key</code>).
+     브라우저가 DB에 말을 걸려면 필요한 값이라 원래 공개됩니다.</p>
+  <p><strong>그래서 적어둔 SQL을 믿지 않고, 그 공개 열쇠로 직접 창구를 두드려봤습니다.</strong>
+     직원 전용 창구 19개 중 <strong>막힌 것 0개.</strong></p>
   <table>
     <tr><th>함수</th><th>되던 일</th></tr>
     <tr><td><code>admin_list_stores</code></td><td>모든 매장의 주소 토큰 · PIN 2종 전량 조회</td></tr>
@@ -1396,29 +1406,39 @@ grant execute on function kuji.foo(...) to service_role;</code></pre>
      지금은 <strong>검증 스크립트가 서버 전용 19개를 매번 찔러봅니다.</strong>
      사람이 기억해서 지키는 규칙은 언젠가 빠집니다.</p>
 
-  <h3 id="k-limit">결 — 정직하게, 아직 검증 전입니다</h3>
-  <p>시스템은 돌아갑니다. 배포돼 있고 데모 매장 2곳으로 전 흐름이 검증됩니다.
-     <strong>그런데 유료 고객은 0입니다.</strong> 그리고 계산을 해보니 지금 모델로는 숫자가 안 맞습니다.</p>
+  <h3 id="k-limit">결 — 여기까지 3일 걸렸습니다</h3>
+  <p><strong>2026년 7월 29일에 시작했습니다.</strong> 규제 조사 · 기획 · 개발 · 배포까지 사흘입니다.
+     지금 <strong>매장에 그대로 들여놔도 돌아가는 상태</strong>고, 세부는 계속 다듬고 있습니다.</p>
+
+  <div class="note">
+    <b>왜 사흘 만에 됐는지가 이 케이스의 진짜 내용입니다.</b>
+    새로 만든 게 아니라 <b>이미 겪어둔 것을 옮겼기 때문</b>입니다.<br><br>
+    권한을 DB에 내리는 설계, 결제, 어드민 화면, 이미지 리사이즈, PWA, 크론 —
+    전부 SCPAD에서 한 번씩 틀려보고 고쳐본 것들입니다.
+    <b>두 번째부터는 고민이 아니라 적용입니다.</b><br><br>
+    그리고 <b>규제 조사를 먼저 한 것</b>이 컸습니다.
+    만들면서 "이거 해도 되나"를 다시 묻지 않았습니다.
+  </div>
+
+  <h3>아직 안 한 것 · 모르는 것</h3>
+  <p>사흘짜리라서 <strong>못 겪은 게 훨씬 많습니다.</strong> 아는 척하지 않고 적습니다.</p>
   <table>
-    <tr><th>가정</th><th>값</th></tr>
-    <tr><td>건당 가격</td><td>40만원 (3~7일 이벤트 1회 패키지)</td></tr>
-    <tr><td>1인 처리 한계</td><td>월 6~8건</td></tr>
-    <tr><td>구조</td><td><strong>1회성.</strong> 구독이 아니라 매달 새 고객이 필요</td></tr>
+    <tr><th>항목</th><th>상태</th></tr>
+    <tr><td>유료 고객</td><td><strong>0.</strong> 가격은 <strong>1주 20만원</strong> 선에서 보고 있는데 <em>받아본 적이 없습니다</em></td></tr>
+    <tr><td>실사용 데이터</td><td>없음. 손님이 실제로 몇 %나 뽑는지, 완주하는지 <strong>재본 적이 없습니다</strong></td></tr>
+    <tr><td>단위 경제</td><td>계산은 해뒀지만 <strong>전부 가정입니다.</strong> 첫 유료 건으로 검증할 것</td></tr>
+    <tr><td>기술 해자</td><td>없음. 잘되면 카피는 금방 나옵니다. 문서에도 그대로 적어뒀습니다</td></tr>
   </table>
-  <p>매달 6~8곳을 <strong>새로</strong> 뚫어야 하는데, 신규 영업과 실행을 혼자 하면 현실적 한계는 그 절반입니다.
-     <strong>판매 대상을 잘못 잡은 것</strong>이라고 보고 있습니다 —
-     매장 한 곳이 아니라 <em>매장을 여러 개 가진 쪽</em>(프랜차이즈 본사 · 상권 단체)에 팔아야
-     한 번의 영업이 수십 곳으로 갑니다.</p>
-  <p>기술 해자도 없습니다. 잘되면 카피는 2주면 나옵니다. 이것도 문서에 그대로 적어뒀습니다.
-     <strong>방어선은 코드가 아니라 업종별 캠페인 실적 데이터</strong>라고 보고 있는데,
-     그건 캠페인이 수십 건 쌓여야 생깁니다.</p>
+  <p>그래서 지금 필요한 건 기능이 아니라 <strong>한 곳에서 실제로 돌려보는 것</strong>입니다.
+     참여율과 완주율을 재봐야 <em>이 재미가 진짜인지</em> 알 수 있습니다.
+     그 숫자가 나오기 전까지 나머지는 전부 제 추측입니다.</p>
 
   <div class="note">
     <b>그래서 이 케이스를 넣는 이유.</b>
-    이건 성공 사례가 아닙니다. <b>만들기 전에 조사하고, 조사 결과로 설계를 정하고,
-    내 실수를 스스로 찾아 고치고, 사업성을 냉정하게 계산한 기록</b>입니다.<br><br>
-    남은 산출물은 이렇습니다 — 기획 683줄 · 사업계획서 · 법률·규제 조사 ·
-    화면 설계 근거 문서 · 이미지 규격서. <b>코드보다 문서가 먼저 나왔고, 그 순서가 의도된 것입니다.</b>
+    성공 사례라서가 아닙니다. <b>만들기 전에 법부터 조사하고, 그 조사 결과로 설계를 정하고,
+    내가 만든 구멍을 스스로 찾아 고치고, 아직 모르는 걸 모른다고 적어둔 기록</b>입니다.<br><br>
+    산출물은 이렇습니다 — 기획 683줄 · 사업계획서 · 법률·규제 조사 · 화면 설계 근거 · 이미지 규격서.
+    <b>코드보다 문서가 먼저 나왔고, 사흘이 가능했던 이유도 거기 있습니다.</b>
   </div>
 
   <div class="metric">Next.js 16 · TypeScript · Supabase(PostgreSQL) · RLS 전면 차단 + security definer
