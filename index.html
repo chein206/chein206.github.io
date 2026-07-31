@@ -23,7 +23,10 @@ body{font-family:Pretendard,-apple-system,'Malgun Gothic',sans-serif;background:
 nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);
     backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .nav-in{max-width:940px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px}
-.nav-me{font-weight:800;color:var(--ink);font-size:14.5px;letter-spacing:-.02em}
+.nav-me{font-weight:800;color:var(--ink);font-size:14.5px;letter-spacing:-.02em;white-space:nowrap}
+.nav-date{font-weight:500;font-size:11px;color:var(--muted);letter-spacing:0;margin-left:8px;
+          font-variant-numeric:tabular-nums}
+@media(max-width:420px){.nav-date{display:none}}
 .nav-links{margin-left:auto;display:flex;gap:16px;flex-wrap:wrap}
 .nav-links a{font-size:12.5px;color:var(--muted);text-decoration:none;font-weight:500}
 .nav-links a:hover{color:var(--accent)}
@@ -196,7 +199,8 @@ footer a{color:var(--body)}
 
 <nav>
   <div class="nav-in">
-    <span class="nav-me">남광희</span>
+    <!-- 배포할 때마다 갱신 -->
+    <span class="nav-me">남광희<span class="nav-date">업데이트 2026.07.31</span></span>
     <div class="nav-links">
       <a href="#scpad">SCPAD</a>
       <a href="#kuvt">쿠벤팅</a>
