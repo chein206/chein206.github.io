@@ -955,9 +955,10 @@ PWA / TWA · PortOne V2 · Anthropic Claude(모델 라우팅) · pdfplumber</div
 <!-- ══════════ WHEEL ══════════ -->
 <!-- ══════════ KUVENTING ══════════ -->
 <section class="case" id="kuvt">
-  <div class="case-tag">CASE 02 · 규제 조사부터 보안까지 · 검증 전</div>
-  <h2>동네 매장용 뽑기 이벤트 시스템 — 쿠벤팅</h2>
-  <p class="result">코드를 짜기 전에 <strong>법부터 조사했습니다.</strong> 그 조사 결과가 시스템 설계를 규정했습니다.</p>
+  <div class="case-tag">CASE 02 · 재미 · 이벤트 · 마케팅 · 검증 전</div>
+  <h2>재미로 세우고, 그 화면이 광고가 된다 — 쿠벤팅</h2>
+  <p class="result">이름 그대로입니다 — <strong>쿠지(뽑기) + 이벤트 + 마케팅.</strong>
+     동네 매장이 자기 메뉴를 걸고 1주일짜리 뽑기를 돌리는 시스템입니다.</p>
   <div class="metric">MVP 완성 · 배포 (kuvt.scpadlab.com) · 데모 매장 2곳
 Next.js 16 + Supabase · DB 마이그레이션 23개 · 기획 문서 683줄
 유료 고객 0 — 단위 경제 검증 전                          2026년 7월</div>
@@ -988,6 +989,25 @@ Next.js 16 + Supabase · DB 마이그레이션 23개 · 기획 문서 683줄
     </figure>
   </div>
 
+  <p>세 겹으로 되어 있고, <strong>아래 겹이 위 겹을 먹여 살립니다.</strong></p>
+  <table>
+    <tr><th>겹</th><th>무엇이 일어나나</th></tr>
+    <tr><td><strong>재미</strong></td>
+        <td>꽝이 없고 <strong>남은 재고가 그대로 보입니다.</strong> A상이 1개 남은 게 보이면 지금 뽑습니다.
+            손님이 카운터 앞에 <em>서 있게</em> 만드는 층입니다</td></tr>
+    <tr><td><strong>이벤트</strong></td>
+        <td>50장을 미리 정해두고 1주일 단위로 돌립니다.
+            <strong>최악의 경우 얼마가 나가는지가 사전에 확정됩니다</strong> — 사장님이 결심할 수 있게 만드는 층입니다</td></tr>
+    <tr><td><strong>마케팅</strong></td>
+        <td>세로 화면의 <strong>68~70%가 매장 메뉴 광고</strong>입니다.
+            뽑는 내내, 그리고 아무도 안 뽑을 때도 계속 돕니다. <em>돈을 내는 쪽이 사는 층입니다</em></td></tr>
+  </table>
+  <p>순서가 중요합니다. <strong>재미가 목적이 아니라 수단입니다.</strong>
+     연출을 다듬다 보면 재미가 목적처럼 느껴지는데, 둘이 화면을 두고 다투면 <em>광고가 이깁니다.</em>
+     이 규칙을 픽셀 단위로 못 박아둔 이유는 아래 <a href="#k-design" style="color:var(--accent)">설계 판단 ⑥</a>에 적었습니다.</p>
+
+  <blockquote>그리고 코드를 짜기 전에 법부터 조사했습니다. 그 조사 결과가 시스템 설계를 규정했습니다.</blockquote>
+
   <h3 id="k-why">기 — 사장님이 이벤트를 못 여는 진짜 이유</h3>
   <p>동네 매장의 판촉 수단은 40년째 그대로입니다. 전단지, 스탬프 카드, 그리고 가끔 룰렛.
      디지털 판촉 도구는 대부분 온라인 쇼핑몰만 봅니다.</p>
@@ -999,9 +1019,9 @@ Next.js 16 + Supabase · DB 마이그레이션 23개 · 기획 문서 683줄
   <p>그리고 부수 효과가 하나 더 있습니다. 일반 커머스는 재고가 빠지면 관심이 식는데,
      <strong>뽑기는 반대입니다.</strong></p>
 
-<pre><code>A상  차슈덮밥 세트 무료   1개 남음   <span class="c">← 이게 보이면 지금 뽑는다</span>
-B상  라멘 1그릇 무료      2개 남음
-E상  1,000원 할인        29개</code></pre>
+<pre><code>A상  치킨 1마리 세트   1개 남음   <span class="c">← 이게 보이면 지금 뽑는다</span>
+B상  치킨 1마리        3개 남음
+F상  1,000원 할인권   26개</code></pre>
 
   <p>팔릴수록 남은 확률이 올라가서 <strong>후반 참여 동기가 더 강해집니다.</strong>
      굿즈 소매업에서는 이미 다 쓰는 방식인데, <em>매장 판촉에 옮긴 사례는 한국과 일본 모두 찾지 못했습니다.</em></p>
